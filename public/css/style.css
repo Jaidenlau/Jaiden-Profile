@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   Colours live here. Light by default, dark follows the visitor's system.
+   Colours live here.
 --------------------------------------------------------------------------- */
 :root {
   --bg: #f6f5f1;
@@ -22,25 +22,8 @@
   --radius: 14px;
   --gutter: 16px;
   --max: 1180px;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f0f0e;
-    --surface: #171716;
-    --surface-2: #1d1d1b;
-    --ink: #eeede8;
-    --ink-2: #cfcdc6;
-    --muted: #9b9991;
-    --line: #2a2a27;
-    --line-strong: #3a3935;
-    --accent: #ff6b4d;
-    --accent-soft: rgba(255, 107, 77, 0.16);
-    --on-accent: #1a0a06;
-    --live: #5cc98b;
-    color-scheme: dark;
-  }
+  /* Light only. "only" also stops phones from auto-darkening the page. */
+  color-scheme: only light;
 }
 
 /* ---------------------------------------------------------------------------
@@ -148,65 +131,75 @@ button { font: inherit; color: inherit; }
 .tabs a[aria-current='page'] { background: var(--ink); color: var(--bg); }
 
 /* ---------------------------------------------------------------------------
-   Hero
+   Hero: the video comes first, then a short intro. The frame is sized from the
+   viewport height so the top of "Selected work" is visible on first load.
 --------------------------------------------------------------------------- */
 .hero {
-  display: grid; gap: 40px;
-  padding-top: 56px; padding-bottom: 72px;
-  align-items: center;
+  display: grid; justify-items: center; gap: 18px;
+  padding-top: 24px; padding-bottom: 32px;
+  text-align: center;
 }
-@media (min-width: 980px) {
-  .hero { grid-template-columns: 1.08fr 1fr; gap: 56px; padding-top: 88px; padding-bottom: 96px; }
-  .hero:has(.video-tall) { grid-template-columns: 1.5fr 1fr; }
+@media (min-width: 720px) { .hero { padding-top: 36px; padding-bottom: 44px; } }
+/* Wide screens: intro sits beside the video so both fit above the projects. */
+@media (min-width: 960px) {
+  .hero {
+    grid-template-columns: auto minmax(280px, 360px);
+    justify-content: center; align-items: center; justify-items: start;
+    column-gap: 48px; text-align: left;
+  }
+  .hero .hero-copy { justify-items: start; }
+  /* No % widths here: the column is sized by the video, so 100% would be circular. */
+  .hero .video { width: auto; }
+  .hero .video-frame { width: max(380px, min(calc((100svh - 380px) * var(--ar)), calc(var(--maxh) * var(--ar)))); }
+  .hero .video-tall .video-frame { width: max(240px, min(calc((100svh - 220px) * var(--ar)), calc(var(--maxh) * var(--ar)))); }
 }
-.hero-copy { display: grid; gap: 22px; }
-.hero .display { max-width: 14ch; }
-.lede { color: var(--ink-2); font-size: 18px; max-width: 54ch; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 
-.stats {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-  margin: 18px 0 0; padding-top: 22px; border-top: 1px solid var(--line);
-}
-.stats div { display: grid; grid-template-areas: 'value' 'label'; align-content: start; gap: 6px; }
-.stats dd { grid-area: value; margin: 0; font-family: var(--font-display); font-size: clamp(30px, 4vw, 40px); line-height: 1; }
-.stats dt { grid-area: label; font-size: 13px; color: var(--muted); line-height: 1.35; }
-
-.video { margin: 0; display: grid; gap: 10px; }
-.video-tall { max-width: 380px; justify-self: center; width: 100%; }
+.video { margin: 0; width: 100%; display: grid; justify-items: center; }
 .video-frame {
+  --ar: 1.7778;
+  --maxh: 380px;
   position: relative; overflow: hidden;
-  border-radius: 18px; background: var(--ink);
+  aspect-ratio: var(--ar);
+  width: min(100%, max(260px, calc((100svh - 470px) * var(--ar))), calc(var(--maxh) * var(--ar)));
+  border-radius: 18px;
+  background: var(--surface-2);
   border: 1px solid var(--line);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 50px -32px rgba(20, 20, 18, 0.35);
 }
-.video-frame iframe, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
-.video figcaption { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+.video-tall .video-frame { --maxh: 460px; width: min(100%, max(220px, calc((100svh - 300px) * var(--ar))), calc(var(--maxh) * var(--ar))); }
+.video-frame iframe, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; background: #000; }
 .video-empty {
   position: absolute; inset: 0;
-  display: grid; place-content: center; justify-items: center; gap: 14px;
-  color: color-mix(in srgb, var(--bg) 70%, transparent);
-  font-family: var(--font-mono); font-size: 13px;
-  background:
-    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 55%),
-    var(--ink);
+  display: grid; place-content: center; justify-items: center; gap: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.02em;
+  background-color: var(--surface-2);
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 12%, transparent) 1px, transparent 1px);
+  background-size: 14px 14px;
 }
 .play {
-  width: 64px; height: 64px; border-radius: 50%;
-  background: var(--bg); position: relative;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  position: relative;
 }
 .play::after {
-  content: ''; position: absolute; left: 26px; top: 21px;
-  border-left: 16px solid var(--ink); border-top: 11px solid transparent; border-bottom: 11px solid transparent;
+  content: ''; position: absolute; left: 24px; top: 19px;
+  border-left: 16px solid var(--accent); border-top: 11px solid transparent; border-bottom: 11px solid transparent;
 }
+
+.hero-copy { display: grid; justify-items: center; gap: 8px; max-width: 600px; }
+.hero-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5vw, 46px); line-height: 1.05; letter-spacing: -0.01em; }
+.hero-line { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { color: var(--ink-2); font-size: 16px; margin-top: 6px; }
+@media (min-width: 720px) { .lede { font-size: 17px; } }
 
 /* ---------------------------------------------------------------------------
    Sections
 --------------------------------------------------------------------------- */
-.section { padding-bottom: 88px; }
+.section { padding-bottom: 80px; }
 .section-head {
-  display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px;
-  margin-bottom: 24px; padding-top: 22px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px;
+  margin-bottom: 20px; padding-top: 20px; border-top: 1px solid var(--line);
 }
 .section-title { font-family: var(--font-display); font-size: clamp(28px, 4vw, 40px); font-weight: 400; line-height: 1.1; }
 .section-note { color: var(--muted); font-size: 15px; }
@@ -429,3 +422,9 @@ button { font: inherit; color: inherit; }
 .footer-base { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0 28px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
 
 .not-found { display: grid; gap: 20px; padding-top: 120px; padding-bottom: 160px; }
+
+/* Narrow phones: the tab labels need the room more than the name does. */
+@media (max-width: 440px) {
+  .brand-name { display: none; }
+  .tabs a { padding: 7px 13px; }
+}

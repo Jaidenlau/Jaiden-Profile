@@ -220,7 +220,7 @@
     el.innerHTML = `
       <div class="wrap footer-inner">
         <div>
-          <p class="footer-kicker">Want to build something together?</p>
+          <p class="footer-kicker">Say hi</p>
           <a class="footer-email" href="mailto:${esc(L.email)}">${esc(L.email)}</a>
         </div>
         <ul class="footer-links">
@@ -236,32 +236,33 @@
   // ---- Work page -----------------------------------------------------------
   function videoHTML() {
     const v = S.introVideo || {};
-    const style = `style="aspect-ratio:${esc(v.aspect || '16 / 9')}"`;
+    // '16 / 9' -> 1.778. The CSS sizes the frame from this so the start of the
+    // projects stays visible under the video on first load.
+    const [aw, ah] = String(v.aspect || '16 / 9').split('/').map(Number);
+    const ratio = aw > 0 && ah > 0 ? aw / ah : 16 / 9;
+    const style = `style="--ar:${ratio.toFixed(4)}"`;
     let inner;
     if (v.youtube) {
       inner = `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.youtube)}?rel=0&modestbranding=1" title="Intro video" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
     } else if (v.src) {
       inner = `<video controls playsinline preload="metadata" ${v.poster ? `poster="${esc(v.poster)}"` : ''}><source src="${esc(v.src)}"></video>`;
     } else {
-      inner = `<div class="video-empty"><span class="play" aria-hidden="true"></span><span>Intro video goes here</span></div>`;
+      inner = `<div class="video-empty"><span class="play" aria-hidden="true"></span><span>Video coming soon</span></div>`;
     }
-    return `<figure class="video ${v.aspect && v.aspect.startsWith('9') ? 'video-tall' : ''}"><div class="video-frame" ${style}>${inner}</div>${v.caption ? `<figcaption>${esc(v.caption)}</figcaption>` : ''}</figure>`;
+    return `<figure class="video${ratio < 1 ? ' video-tall' : ''}"><div class="video-frame" ${style}>${inner}</div></figure>`;
   }
 
   function renderWork() {
     const H = S.hero;
     $('#hero').innerHTML = `
+      ${videoHTML()}
       <div class="hero-copy">
-        <p class="eyebrow">${esc(H.eyebrow)}</p>
-        <h1 class="display">${H.title}</h1>
+        <h1 class="hero-name">${esc(S.name)}</h1>
+        <p class="hero-line">${esc(H.line)}</p>
         <p class="lede">${esc(H.lede)}</p>
-        <div class="hero-actions">
-          <a class="button" href="#featured-title">See my projects</a>
-          <a class="button button-ghost" href="/about">About me</a>
-        </div>
-        <dl class="stats">${S.stats.map((s) => `<div><dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd></div>`).join('')}</dl>
-      </div>
-      ${videoHTML()}`;
+      </div>`;
+    const note = $('#featured-note');
+    if (note && H.paidNote) note.textContent = H.paidNote;
 
     const featured = S.projects.filter((p) => p.featured);
     $('#featured').innerHTML = featured.map((p) => cardHTML(p, 'lg')).join('');
@@ -271,6 +272,8 @@
     const used = new Set(rest.map((p) => p.category));
     const cats = [{ id: 'all', label: 'All' }, ...S.categories.filter((c) => used.has(c.id))];
     const filters = $('#filters');
+    // One category isn't worth a filter row.
+    filters.hidden = cats.length < 3;
     filters.innerHTML = cats
       .map((c) => {
         const n = c.id === 'all' ? rest.length : rest.filter((p) => p.category === c.id).length;

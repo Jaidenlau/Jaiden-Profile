@@ -4,10 +4,14 @@ Two pages:
 
 | Route | Tab | What's on it |
 | --- | --- | --- |
-| `/` | Work | Intro, video, selected work, every other project with filters. Clicking a project opens its details. |
+| `/` | Projects & Work | The intro video first, then selected work and the rest of the paid projects. Clicking a project opens its details. |
 | `/about` | About | Bio, experience, activities, education, tools. |
 
 Each project has its own link, e.g. `/#plan-b`, which opens that project directly. Useful for sharing one project in a LinkedIn post.
+
+## The rule for this site
+
+Only projects someone paid for go in `projects`. Side projects and unpaid builds stay off.
 
 ## Editing
 
@@ -20,9 +24,10 @@ All text, projects, links and images are set in **`public/js/content.js`**. You 
   - upload it to YouTube as *Unlisted* and paste the id into `introVideo.youtube`, or
   - put an `.mp4` in `public/media/` and set `introVideo.src: '/media/intro.mp4'`. Keep it under ~50 MB (export at 1080p, H.264).
   - If you film vertically on a phone, set `introVideo.aspect: '9 / 16'`.
+  - The player is sized from the screen height so the top of "Selected work" is always visible under it on first load.
 - **Add your CV:** put the PDF in `public/` and set `links.resume`.
 
-Colours and fonts are CSS variables at the top of `public/css/style.css`. Dark mode follows the visitor's system setting.
+Colours and fonts are CSS variables at the top of `public/css/style.css`. The site is always light, even on phones set to dark mode.
 
 ## Running locally
 

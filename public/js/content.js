@@ -19,12 +19,14 @@ window.SITE = {
     resume: '',
   },
 
-  // ---- Work page -----------------------------------------------------------
+  // ---- Projects & Work page ------------------------------------------------
+  // Only paid client work goes in `projects`. Side projects stay off this site.
   hero: {
-    eyebrow: '17 · Hong Kong · Building since 2025',
-    title: 'I build AI systems that businesses <em>run on</em>.',
+    line: '17 · Hong Kong · Co-founder of Autoploy',
     lede:
-      "I'm Jaiden, co-founder and lead engineer at Autoploy. We design, build and maintain agent pipelines, data systems and web platforms for clients from Hong Kong to Ecuador. This page is the running record of what I've shipped, and I plan to keep adding to it for a long time.",
+      'I co-founded Autoploy in 2025 and I’ve been building AI systems for clients ever since. This is where I keep that work. Only projects someone paid me to build go here, and I’ll keep adding to it for as long as I’m doing this.',
+    // Shown next to the "Selected work" heading.
+    paidNote: 'Paid client work only',
   },
 
   introVideo: {
@@ -35,19 +37,11 @@ window.SITE = {
     youtube: '',
     // '16 / 9' for landscape, '9 / 16' if you film vertically on a phone
     aspect: '16 / 9',
-    caption: 'A one-minute hello',
   },
-
-  stats: [
-    { value: '4', label: 'countries with clients' },
-    { value: '4', label: 'time zones on my team' },
-    { value: '800+', label: 'people learning in my AI community' },
-  ],
 
   categories: [
     { id: 'ai', label: 'AI systems' },
-    { id: 'platform', label: 'Platforms & web' },
-    { id: 'personal', label: 'Personal builds' },
+    { id: 'platform', label: 'Enterprise platforms' },
     { id: 'teaching', label: 'Teaching' },
   ],
 
@@ -206,48 +200,6 @@ window.SITE = {
       links: [],
     },
     {
-      id: 'ijkpokemon',
-      title: 'IJKpokemon website',
-      client: 'Pokémon card exporter · Tokyo',
-      year: '2026',
-      status: 'Live',
-      category: 'platform',
-      cover: 'web',
-      logo: '/images/projects/ijkpokemon-logo.png',
-      logoBg: '#1c1b19',
-      summary:
-        'Bilingual site for a Tokyo trading card shop that supplies Japanese product to overseas buyers. Japanese is primary on every page, with a short English line under each so overseas buyers can follow without the layout getting busy.',
-      highlights: [
-        'Four pages: home, team, supply and contact, with an enquiry form',
-        'No catalogue by design: stock moves daily, so every product routes to an enquiry',
-        'Logo cut from a gradient backdrop with a per-pixel background estimate',
-        'Zero-dependency Node server, deployed on Railway',
-      ],
-      role: 'Design and build',
-      stack: ['HTML', 'CSS', 'Node', 'Railway'],
-      links: [{ label: 'Visit the site', url: 'https://ijkpokemon-production.up.railway.app' }],
-    },
-    {
-      id: 'green-hotel',
-      title: 'Direct booking site for a small hotel',
-      client: 'Green Hotel · Japan',
-      year: '2026',
-      status: 'Built',
-      category: 'platform',
-      cover: 'calendar',
-      summary:
-        'Lets guests book rooms directly instead of paying Airbnb’s service fee. The site syncs both ways with Airbnb’s calendar so a night cannot be sold twice, and takes payment through Stripe Checkout.',
-      highlights: [
-        'Two-way calendar sync with Airbnb over iCal',
-        'If the sync fails, booking switches off instead of risking a double booking',
-        'Card payments handled entirely by Stripe; the site never sees card details',
-        'Three setup stages, so it was useful on day one before any integration was connected',
-      ],
-      role: 'Design and build',
-      stack: ['Next.js', 'TypeScript', 'Stripe', 'iCal'],
-      links: [],
-    },
-    {
       id: 'hutong-recovery',
       title: 'Mid-build migration, shipped on deadline',
       client: 'Client project',
@@ -308,70 +260,6 @@ window.SITE = {
       highlights: ['Scheduling, tasks and coordination in one place', 'Automations replace the manual back-and-forth'],
       role: 'Design and build',
       stack: ['Workflow automation', 'System design'],
-      links: [],
-    },
-    {
-      id: 'weather-bot',
-      title: 'Hong Kong weather market bot',
-      client: 'Personal',
-      year: '2026',
-      status: 'Ongoing',
-      category: 'personal',
-      cover: 'chart',
-      summary:
-        'Reads Hong Kong Observatory forecasts, estimates the chance that the day’s low drops below a threshold, and compares that with prediction market prices. When the gap is large enough it sends me a Telegram message with Approve and Skip buttons. Paper trading by default.',
-      highlights: [
-        'Probability model on the official HKO forecast',
-        'Checks the real order book, spread and liquidity, not just the displayed price',
-        'Nothing happens without a human tapping Approve',
-        'Every alert and decision logged to SQLite',
-      ],
-      role: 'Solo build',
-      stack: ['Python', 'FastAPI', 'Telegram Bot API', 'SQLite', 'Railway'],
-      links: [{ label: 'Code', url: 'https://github.com/Jaidenlau/weather-bot' }],
-    },
-    {
-      id: 'card-tracker',
-      title: 'Pokémon card price tracker',
-      client: 'Personal',
-      year: '2026',
-      status: 'Ongoing',
-      category: 'personal',
-      cover: 'cards',
-      summary:
-        'Tracks trading card prices from public market data on a schedule and lets you manage a collection as a portfolio. If the source changes or blocks the sync, the app keeps serving its last good data.',
-      highlights: ['Scheduled price sync', 'Collection portfolio with sign-in', 'Fails safe when the data source changes'],
-      role: 'Solo build',
-      stack: ['FastAPI', 'Next.js', 'TypeScript', 'SQLite'],
-      links: [{ label: 'Code', url: 'https://github.com/Jaidenlau/snkrdunk.jp' }],
-    },
-    {
-      id: 'abyss',
-      title: 'Abyss: voice assistant',
-      client: 'Personal',
-      year: '2026',
-      status: 'Ongoing',
-      category: 'personal',
-      cover: 'voice',
-      summary:
-        'My own voice assistant. Whisper handles speech, Claude handles reasoning, and every capability is a separate module so I can add new ones without touching the rest.',
-      highlights: ['Speech recognition with Whisper', 'Reasoning on the Claude API', 'Modular: each skill is its own module'],
-      role: 'Solo build',
-      stack: ['Python', 'Claude API', 'Whisper'],
-      links: [],
-    },
-    {
-      id: 'daily-brief',
-      title: 'Daily briefing service',
-      client: 'Personal',
-      year: '2026',
-      status: 'Running',
-      category: 'personal',
-      cover: 'brief',
-      summary: 'A scheduled job that pulls weather, my calendar, news and exchange rates into one morning brief.',
-      highlights: ['Runs on a schedule with no server to maintain', 'Four sources in one message'],
-      role: 'Solo build',
-      stack: ['Google Apps Script', 'API aggregation', 'Scheduled jobs'],
       links: [],
     },
   ],
