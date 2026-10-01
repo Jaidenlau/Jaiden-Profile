@@ -1,0 +1,14 @@
+{
+  "name": "jaiden-profile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Jaiden Lau's personal site: projects and about.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}
