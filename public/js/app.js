@@ -160,6 +160,18 @@
       s += `<polyline points="${pts.join(' ')}" class="ln thick"/>`;
       return s;
     },
+    trio(r) {
+      // Three agents, each wired to its own tools.
+      let s = `<line x1="80" y1="88" x2="320" y2="88" class="ln dash"/>`;
+      [100, 200, 300].forEach((x, i) => {
+        const hot = i === 1;
+        [-30, 0, 30].forEach((dx) => {
+          s += `<line x1="${x}" y1="88" x2="${x + dx}" y2="166" class="ln faint"/><rect x="${x + dx - 11}" y="166" width="22" height="16" rx="4" class="${hot && dx === 0 ? 'hot-box' : 'box'}"/>`;
+        });
+        s += hot ? `<circle cx="${x}" cy="88" r="24" class="halo"/><circle cx="${x}" cy="88" r="13" class="hot"/>` : `<circle cx="${x}" cy="88" r="${12 + r() * 2}" class="node"/>`;
+      });
+      return s;
+    },
     calendar(r) {
       let s = `<rect x="80" y="40" width="240" height="170" rx="10" class="box"/><line x1="80" y1="70" x2="320" y2="70" class="ln"/>`;
       const hot = Math.floor(r() * 7) + 7;

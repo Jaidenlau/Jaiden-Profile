@@ -7,7 +7,7 @@ Two pages:
 | `/` | Projects & Work | The intro video first, then selected work and the rest of the paid projects. Clicking a project opens its details. |
 | `/about` | About | Bio, experience, activities, education, tools. |
 
-Each project has its own link, e.g. `/#plan-b`, which opens that project directly. Useful for sharing one project in a LinkedIn post.
+Each project has its own link, e.g. `/#lead-pipeline`, which opens that project directly. Useful for sharing one project in a LinkedIn post.
 
 ## The rule for this site
 
