@@ -6,6 +6,10 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, 'public');
 
+// Changes on every deploy. HTML links CSS/JS as /app.js?v=VERSION, so a new
+// deploy can never be hidden behind a visitor's cached copy of the old files.
+const VERSION = (process.env.RAILWAY_GIT_COMMIT_SHA || Date.now().toString(36)).slice(0, 12);
+
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -58,20 +62,29 @@ function sendHtml(req, res, status, file) {
       return res.end('Server error');
     }
     res.writeHead(status, { ...BASE_HEADERS, 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-cache' });
-    res.end(html.replaceAll('%ORIGIN%', originOf(req)));
+    res.end(html.replaceAll('%ORIGIN%', originOf(req)).replaceAll('%VERSION%', VERSION));
   });
 }
 
 // Range support matters for video: Safari will not play an <video> whose
 // server ignores Range requests.
-function sendFile(req, res, file, stat) {
+function sendFile(req, res, file, stat, versioned) {
   const type = TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream';
+  const lastModified = stat.mtime.toUTCString();
   const headers = {
     ...BASE_HEADERS,
     'Content-Type': type,
-    'Cache-Control': 'public, max-age=3600',
+    // Versioned CSS/JS never change at the same URL. Everything else (images,
+    // video) is rechecked each visit and only re-downloaded if it changed.
+    'Cache-Control': versioned ? 'public, max-age=31536000, immutable' : 'no-cache',
+    'Last-Modified': lastModified,
     'Accept-Ranges': 'bytes',
   };
+  const since = Date.parse(req.headers['if-modified-since'] || '');
+  if (!req.headers.range && since && Math.floor(stat.mtimeMs / 1000) * 1000 <= since) {
+    res.writeHead(304, headers);
+    return res.end();
+  }
   const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
   if (range && (range[1] || range[2])) {
     let start = range[1] ? Number(range[1]) : stat.size - Number(range[2]);
@@ -97,9 +110,10 @@ const server = http.createServer((req, res) => {
     return res.end();
   }
 
+  const [rawPath, query = ''] = (req.url || '/').split('?');
   let urlPath;
   try {
-    urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
+    urlPath = decodeURIComponent(rawPath);
   } catch {
     urlPath = '/__bad__';
   }
@@ -113,7 +127,7 @@ const server = http.createServer((req, res) => {
   fs.stat(file, (err, stat) => {
     if (err || !stat.isFile()) return sendHtml(req, res, 404, path.join(ROOT, '404.html'));
     if (file.endsWith('.html')) return sendHtml(req, res, 200, file);
-    sendFile(req, res, file, stat);
+    sendFile(req, res, file, stat, /(^|&)v=/.test(query));
   });
 });
 
