@@ -22,9 +22,6 @@ window.SITE = {
   // ---- Projects & Work page ------------------------------------------------
   // Only paid client work goes in `projects`. Side projects stay off this site.
   hero: {
-    line: '17 · Hong Kong · Co-founder of Autoploy',
-    lede:
-      'I co-founded Autoploy in 2025 and I’ve been building AI systems for clients ever since. This is where I keep that work. Only projects someone paid me to build go here, and I’ll keep adding to it for as long as I’m doing this.',
     // Shown next to the "Selected work" heading.
     paidNote: 'Paid client work only',
   },
@@ -42,7 +39,6 @@ window.SITE = {
   categories: [
     { id: 'ai', label: 'AI systems' },
     { id: 'platform', label: 'Enterprise platforms' },
-    { id: 'teaching', label: 'Teaching' },
   ],
 
   /*
@@ -54,7 +50,7 @@ window.SITE = {
       status    Live · Deployed · In delivery · Demo · Delivered · Built · Ongoing
       image     optional screenshot/photo. Without one, a diagram cover is drawn
       cover     diagram used when there's no image: agents, pipeline, workflow, web,
-                chart, map, voice, brief, community, migrate, chat, calendar, house, cards
+                chart, map, voice, brief, migrate, chat, calendar, house, cards
       links     [{ label, url }]
   */
   projects: [
@@ -120,26 +116,6 @@ window.SITE = {
       role: 'Architecture and delivery lead',
       stack: ['Multi-agent pipeline', 'Python', 'VPS deployment', 'Multilingual generation'],
       links: [],
-    },
-    {
-      id: 'autoploy-academy',
-      featured: true,
-      title: 'Autoploy Academy',
-      client: 'My own community',
-      year: '2026',
-      status: 'Live',
-      category: 'teaching',
-      cover: 'community',
-      summary:
-        'A paid learning community where I teach people to build with AI. I wrote and recorded a multi-day lead generation masterclass that ships with a working Python pipeline. A second course, on building software with Claude Code, is in production.',
-      highlights: [
-        '800+ members',
-        'Multi-day lead generation masterclass with written material and working code',
-        'Second course on AI-assisted development in production',
-      ],
-      role: 'Founder, curriculum, instruction',
-      stack: ['Curriculum design', 'Python', 'Community'],
-      links: [{ label: 'Visit the community', url: 'https://www.skool.com/the-ai-free-tools-community-5548/about' }],
     },
     {
       id: 'merchant-onboarding',
@@ -270,7 +246,7 @@ window.SITE = {
     intro: [
       'I’m 17 and a senior at Hong Kong International School. In 2025 I co-founded Autoploy, an AI automation agency, and I run its engineering: architecture, building, deployment, and keeping systems working after handover.',
       'Our clients range from independent operators to a national health insurer, and we bid for enterprise banking work. I scope projects with clients directly, write the proposals, and lead a team spread across Hong Kong, Tokyo, Lahore and New York.',
-      'Outside work I play competitive chess, spent four years as software lead on my school’s VEX robotics team, and teach what I’ve learned to 800+ people in an online community.',
+      'Outside work I play competitive chess and spent four years as software lead on my school’s VEX robotics team.',
     ],
     facts: [
       { label: 'Based in', value: 'Hong Kong & Tokyo' },
@@ -289,17 +265,6 @@ window.SITE = {
           'Lead a distributed team across four time zones',
           'Run technical scoping, proposals and handover directly with clients',
           'Work spans multi-agent systems, retrieval, data extraction and API integration',
-        ],
-      },
-      {
-        org: 'Autoploy Academy',
-        title: 'Founder & Instructor',
-        period: '2025 – present',
-        place: 'Online',
-        points: [
-          'Subscription learning community with 800+ members',
-          'Wrote and recorded a multi-day lead generation masterclass with a working Python pipeline',
-          'Second course on AI-assisted development with Claude Code in production',
         ],
       },
     ],

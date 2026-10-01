@@ -2,14 +2,14 @@
    Colours live here.
 --------------------------------------------------------------------------- */
 :root {
-  --bg: #f6f5f1;
-  --surface: #ffffff;
-  --surface-2: #efede7;
-  --ink: #151513;
-  --ink-2: #3b3a36;
-  --muted: #6b6a64;
-  --line: #e2dfd7;
-  --line-strong: #cfcbc1;
+  --bg: #e8e6e0;
+  --surface: #f2f1ec;
+  --surface-2: #e0ddd5;
+  --ink: #1a1a18;
+  --ink-2: #3a3935;
+  --muted: #63615b;
+  --line: #d5d2c9;
+  --line-strong: #c2beb3;
   --accent: #d6452a;
   --accent-soft: rgba(214, 69, 42, 0.14);
   --on-accent: #ffffff;
@@ -131,42 +131,25 @@ button { font: inherit; color: inherit; }
 .tabs a[aria-current='page'] { background: var(--ink); color: var(--bg); }
 
 /* ---------------------------------------------------------------------------
-   Hero: the video comes first, then a short intro. The frame is sized from the
-   viewport height so the top of "Selected work" is visible on first load.
+   Hero: the video, alone. It's sized from the screen height so the top of
+   "Selected work" is still visible underneath on first load.
 --------------------------------------------------------------------------- */
-.hero {
-  display: grid; justify-items: center; gap: 18px;
-  padding-top: 24px; padding-bottom: 32px;
-  text-align: center;
-}
-@media (min-width: 720px) { .hero { padding-top: 36px; padding-bottom: 44px; } }
-/* Wide screens: intro sits beside the video so both fit above the projects. */
-@media (min-width: 960px) {
-  .hero {
-    grid-template-columns: auto minmax(280px, 360px);
-    justify-content: center; align-items: center; justify-items: start;
-    column-gap: 48px; text-align: left;
-  }
-  .hero .hero-copy { justify-items: start; }
-  /* No % widths here: the column is sized by the video, so 100% would be circular. */
-  .hero .video { width: auto; }
-  .hero .video-frame { width: max(380px, min(calc((100svh - 380px) * var(--ar)), calc(var(--maxh) * var(--ar)))); }
-  .hero .video-tall .video-frame { width: max(240px, min(calc((100svh - 220px) * var(--ar)), calc(var(--maxh) * var(--ar)))); }
-}
+.hero { display: grid; justify-items: center; padding-top: 24px; padding-bottom: 32px; }
+@media (min-width: 720px) { .hero { padding-top: 36px; padding-bottom: 40px; } }
 
 .video { margin: 0; width: 100%; display: grid; justify-items: center; }
 .video-frame {
   --ar: 1.7778;
-  --maxh: 380px;
+  --maxh: 400px;
   position: relative; overflow: hidden;
   aspect-ratio: var(--ar);
-  width: min(100%, max(260px, calc((100svh - 470px) * var(--ar))), calc(var(--maxh) * var(--ar)));
+  width: min(100%, max(260px, calc((100svh - 360px) * var(--ar))), calc(var(--maxh) * var(--ar)));
   border-radius: 18px;
   background: var(--surface-2);
   border: 1px solid var(--line);
   box-shadow: 0 24px 50px -32px rgba(20, 20, 18, 0.35);
 }
-.video-tall .video-frame { --maxh: 460px; width: min(100%, max(220px, calc((100svh - 300px) * var(--ar))), calc(var(--maxh) * var(--ar))); }
+.video-tall .video-frame { --maxh: 520px; }
 .video-frame iframe, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; background: #000; }
 .video-empty {
   position: absolute; inset: 0;
@@ -186,12 +169,6 @@ button { font: inherit; color: inherit; }
   content: ''; position: absolute; left: 24px; top: 19px;
   border-left: 16px solid var(--accent); border-top: 11px solid transparent; border-bottom: 11px solid transparent;
 }
-
-.hero-copy { display: grid; justify-items: center; gap: 8px; max-width: 600px; }
-.hero-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5vw, 46px); line-height: 1.05; letter-spacing: -0.01em; }
-.hero-line { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.lede { color: var(--ink-2); font-size: 16px; margin-top: 6px; }
-@media (min-width: 720px) { .lede { font-size: 17px; } }
 
 /* ---------------------------------------------------------------------------
    Sections

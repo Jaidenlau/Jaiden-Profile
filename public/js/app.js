@@ -123,17 +123,6 @@
       for (let l = 0; l < 5; l++) s += `<line x1="${l === 0 ? 150 : 110}" y1="${85 + l * 21}" x2="${150 + r() * 110}" y2="${85 + l * 21}" class="ln${l === 0 ? ' thick' : ''}"/>`;
       return s;
     },
-    community(r) {
-      let s = '';
-      const cx = 200, cy = 125;
-      s += `<circle cx="${cx}" cy="${cy}" r="88" class="ln faint"/><circle cx="${cx}" cy="${cy}" r="52" class="ln faint"/>`;
-      for (let i = 0; i < 42; i++) {
-        const a = r() * Math.PI * 2, d = 30 + Math.sqrt(r()) * 70;
-        s += `<circle cx="${(cx + Math.cos(a) * d * 1.45).toFixed(1)}" cy="${(cy + Math.sin(a) * d * 0.95).toFixed(1)}" r="${(2.5 + r() * 3).toFixed(1)}" class="fill-ink" style="opacity:${(0.35 + r() * 0.6).toFixed(2)}"/>`;
-      }
-      s += `<circle cx="${cx}" cy="${cy}" r="22" class="halo"/><circle cx="${cx}" cy="${cy}" r="12" class="hot"/>`;
-      return s;
-    },
     migrate() {
       const server = (x, cls) =>
         [0, 1, 2]
@@ -254,13 +243,8 @@
 
   function renderWork() {
     const H = S.hero;
-    $('#hero').innerHTML = `
-      ${videoHTML()}
-      <div class="hero-copy">
-        <h1 class="hero-name">${esc(S.name)}</h1>
-        <p class="hero-line">${esc(H.line)}</p>
-        <p class="lede">${esc(H.lede)}</p>
-      </div>`;
+    // The first screen is the video and nothing else.
+    $('#hero').innerHTML = videoHTML();
     const note = $('#featured-note');
     if (note && H.paidNote) note.textContent = H.paidNote;
 
