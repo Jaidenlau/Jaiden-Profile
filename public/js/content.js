@@ -28,8 +28,8 @@ window.SITE = {
 
   introVideo: {
     // Option A: put the file in public/media/ and set src to '/media/intro.mp4'
-    src: '',
-    poster: '', // optional still frame, e.g. '/media/intro-poster.jpg'
+    src: '/media/intro.mp4',
+    poster: '/media/intro-poster.webp', // still frame shown before it plays
     // Option B: an unlisted YouTube video id (the part after watch?v=)
     youtube: '',
     // '16 / 9' for landscape, '9 / 16' if you film vertically on a phone
