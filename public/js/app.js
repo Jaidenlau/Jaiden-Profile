@@ -185,8 +185,16 @@
     },
   };
 
+  // images: [{ src, caption }]. The older single `image` field still works.
+  const imagesOf = (p) => (p.images && p.images.length ? p.images : p.image ? [{ src: p.image, caption: '' }] : []);
+
+  function shotHTML(img, cls = '') {
+    return `<figure class="shot ${cls}"><a href="${esc(img.src)}" target="_blank" rel="noopener"><img src="${esc(img.src)}" alt="${esc(img.caption || '')}" loading="lazy"></a>${img.caption ? `<figcaption>${esc(img.caption)}</figcaption>` : ''}</figure>`;
+  }
+
   function coverHTML(p) {
-    if (p.image) return `<div class="cover cover-image"><img src="${esc(p.image)}" alt="" loading="lazy"></div>`;
+    const first = imagesOf(p)[0];
+    if (first) return shotHTML(first, 'shot-cover');
     const draw = MOTIFS[p.cover] || MOTIFS.agents;
     return `<div class="cover" aria-hidden="true"><svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid meet">${draw(rng(p.id))}</svg></div>`;
   }
@@ -402,7 +410,11 @@
       ['Year', esc(p.year)],
     ].filter(Boolean);
 
-    const media = videoHTML(p.video || {}, { placeholder: false }) || coverHTML(p);
+    const images = imagesOf(p);
+    const video = videoHTML(p.video || {}, { placeholder: false });
+    // Main visual: the project's video, else its first image, else its diagram.
+    const media = video || coverHTML(p);
+    const gallery = video ? images : images.slice(1);
     const sections = p.sections && p.sections.length
       ? p.sections
       : [{ heading: 'Overview', body: p.summary, bullets: p.highlights || [] }];
@@ -445,6 +457,8 @@
           ${links ? `<div class="proj-links">${links}</div>` : ''}
         </aside>
       </div>
+
+      ${gallery.length ? `<section class="pp-gallery" aria-label="Screens and photos">${gallery.map((img) => shotHTML(img)).join('')}</section>` : ''}
 
       ${next && next !== p ? `<a class="pp-next" href="/projects/${esc(next.id)}"><span class="proj-label">Next project</span><span class="pp-next-title">${esc(next.title)} <span aria-hidden="true">→</span></span><span class="pp-next-client">${esc(shortClient(next.client))}</span></a>` : ''}`;
   }

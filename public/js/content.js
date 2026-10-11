@@ -49,7 +49,8 @@ window.SITE = {
       client    'Company name · detail'. The part before ' · ' shows on the one-line row.
                 Keep it generic where a contract forbids naming the client.
       status    Live · Deployed · In delivery · Demo · Presented · Delivered · Handed over
-      image     optional screenshot/photo. Without one, a diagram cover is drawn
+      images    optional [{ src: '/images/projects/<id>/1.png', caption: '...' }]. The first is the
+                main picture; on project pages the rest show as a gallery. Without any, a diagram is drawn
       cover     diagram used when there's no image: agents, pipeline, workflow, web,
                 chart, map, voice, brief, migrate, chat, calendar, house, cards, trio
       links     [{ label, url }]
