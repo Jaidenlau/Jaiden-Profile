@@ -449,72 +449,8 @@
       ${next && next !== p ? `<a class="pp-next" href="/projects/${esc(next.id)}"><span class="proj-label">Next project</span><span class="pp-next-title">${esc(next.title)} <span aria-hidden="true">→</span></span><span class="pp-next-client">${esc(shortClient(next.client))}</span></a>` : ''}`;
   }
 
-  // ---- About page ----------------------------------------------------------
-  function renderAbout() {
-    const A = S.about;
-    const L = S.links;
-    const initials = S.name.split(' ').map((w) => w[0]).join('');
-    $('#main').innerHTML = `
-      <aside class="about-side">
-        <div class="portrait">${A.photo ? `<img src="${esc(A.photo)}" alt="${esc(S.name)}">` : `<span aria-hidden="true">${esc(initials)}</span>`}</div>
-        <dl class="facts">${A.facts.map((f) => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('')}</dl>
-        <div class="side-actions">
-          <a class="button" href="mailto:${esc(L.email)}">Email me</a>
-          <a class="button button-ghost" href="${esc(L.linkedin)}" target="_blank" rel="noopener">LinkedIn</a>
-          ${L.resume ? `<a class="button button-ghost" href="${esc(L.resume)}" target="_blank">CV (PDF)</a>` : ''}
-        </div>
-      </aside>
-
-      <div class="about-main">
-        <p class="eyebrow">${esc(S.role)}</p>
-        <h1 class="display">Hi, I'm Jaiden.</h1>
-        <div class="intro">${A.intro.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-
-        <section class="about-section" aria-labelledby="exp">
-          <h2 id="exp" class="section-title">Experience</h2>
-          <ol class="timeline">
-            ${A.experience
-              .map(
-                (e) => `
-              <li>
-                <div class="tl-head">
-                  <h3>${esc(e.title)} <span class="at">· ${esc(e.org)}</span></h3>
-                  <p class="tl-when">${esc(e.period)}</p>
-                </div>
-                <p class="tl-place">${esc(e.place)}</p>
-                <ul>${e.points.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
-              </li>`
-              )
-              .join('')}
-          </ol>
-          <p class="see-work"><a href="/">See the projects →</a></p>
-        </section>
-
-        <section class="about-section" aria-labelledby="act">
-          <h2 id="act" class="section-title">Outside of work</h2>
-          <div class="activities">
-            ${A.activities.map((a) => `<div class="activity"><h3>${esc(a.title)}</h3><p>${esc(a.detail)}</p></div>`).join('')}
-          </div>
-        </section>
-
-        <section class="about-section" aria-labelledby="edu">
-          <h2 id="edu" class="section-title">Education</h2>
-          <div class="tl-head"><h3>${esc(A.education.school)}</h3><p class="tl-when">${esc(A.education.period)}</p></div>
-          <p class="muted">${esc(A.education.detail)}</p>
-        </section>
-
-        <section class="about-section" aria-labelledby="stk">
-          <h2 id="stk" class="section-title">What I build with</h2>
-          <dl class="stack">
-            ${A.stack.map((g) => `<div><dt>${esc(g.group)}</dt><dd><ul class="tags">${g.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></dd></div>`).join('')}
-          </dl>
-        </section>
-      </div>`;
-  }
-
   renderFooter();
   const page = document.body.dataset.page;
   if (page === 'work') renderWork();
-  if (page === 'about') renderAbout();
   if (page === 'project') renderProject();
 })();

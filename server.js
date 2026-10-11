@@ -154,6 +154,11 @@ const server = http.createServer((req, res) => {
 
   const projectRoute = /^\/projects\/([a-z0-9-]+)\/?$/.exec(urlPath);
   if (projectRoute) return sendProject(req, res, projectRoute[1]);
+  // The site used to have an About page; send old links home.
+  if (/^\/about(\.html)?\/?$/.test(urlPath)) {
+    res.writeHead(301, { ...BASE_HEADERS, Location: '/' });
+    return res.end();
+  }
   // The bare template only makes sense with a project filled in.
   if (/^\/project(\.html)?$/.test(urlPath)) return sendHtml(req, res, 404, path.join(ROOT, '404.html'));
 
