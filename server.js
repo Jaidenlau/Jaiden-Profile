@@ -59,21 +59,29 @@ function resolve(urlPath) {
 const escHtml = (v) =>
   String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+// Meta tags for the home page; project pages override them (see sendProject).
+const HOME_META = {
+  '%PAGE_TITLE%': 'Jaiden Lau · Projects & Work',
+  '%DESCRIPTION%': "17, Hong Kong. The AI systems I've been paid to build since co-founding Autoploy in 2025.",
+  '%PATH%': '/',
+};
+
 function sendHtml(req, res, status, file, vars = {}) {
   fs.readFile(file, 'utf8', (err, html) => {
     if (err) {
       res.writeHead(500, { ...BASE_HEADERS, 'Content-Type': 'text/plain' });
       return res.end('Server error');
     }
-    for (const [key, value] of Object.entries(vars)) html = html.replaceAll(key, escHtml(value));
+    for (const [key, value] of Object.entries({ ...HOME_META, ...vars })) html = html.replaceAll(key, escHtml(value));
     res.writeHead(status, { ...BASE_HEADERS, 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-cache' });
     res.end(html.replaceAll('%ORIGIN%', originOf(req)).replaceAll('%VERSION%', VERSION));
   });
 }
 
-// Project pages are one template (project.html) filled in by app.js. LinkedIn's
-// preview crawler doesn't run JavaScript, so the server reads content.js and
-// puts each project's title and description into the page's meta tags itself.
+// Every page is the same shell (index.html); app.js shows the home view or a
+// project's view from the URL, so music keeps playing between them. LinkedIn's
+// preview crawler doesn't run JavaScript, so for /projects/<id> the server reads
+// content.js and puts that project's title and description into the meta tags.
 function loadProjects() {
   try {
     const sandbox = { window: {} };
@@ -93,8 +101,8 @@ function sendProject(req, res, id) {
     res.writeHead(302, { ...BASE_HEADERS, Location: `/#${encodeURIComponent(id)}` });
     return res.end();
   }
-  sendHtml(req, res, 200, path.join(ROOT, 'project.html'), {
-    '%TITLE%': project.title,
+  sendHtml(req, res, 200, path.join(ROOT, 'index.html'), {
+    '%PAGE_TITLE%': `${project.title} · Jaiden Lau`,
     '%DESCRIPTION%': project.tagline || project.summary || '',
     '%PATH%': `/projects/${project.id}`,
   });
@@ -159,8 +167,6 @@ const server = http.createServer((req, res) => {
     res.writeHead(301, { ...BASE_HEADERS, Location: '/' });
     return res.end();
   }
-  // The bare template only makes sense with a project filled in.
-  if (/^\/project(\.html)?$/.test(urlPath)) return sendHtml(req, res, 404, path.join(ROOT, '404.html'));
 
   const file = resolve(urlPath);
   if (!file) {

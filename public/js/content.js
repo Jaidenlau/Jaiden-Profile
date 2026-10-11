@@ -36,6 +36,18 @@ window.SITE = {
     aspect: '16 / 9',
   },
 
+  // The record in the top right. Put the audio file at public/media/music.mp3;
+  // the button only appears once that file exists. Times are in seconds:
+  // plays introStart→loopEnd once, then loops loopStart→loopEnd.
+  music: {
+    src: '/media/music.mp3',
+    title: 'Takane no Hanako-san (Instrumental)',
+    introStart: 25,
+    loopStart: 40,
+    loopEnd: 65,
+    volume: 0.35,
+  },
+
   categories: [
     { id: 'ai', label: 'AI agents' },
     { id: 'data', label: 'Data & automation' },

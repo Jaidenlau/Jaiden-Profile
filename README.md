@@ -5,7 +5,7 @@ A one-page site: the intro video, then every paid project as a one-line list wit
 - Big projects (`page: true`) link to their own page at `/projects/<id>`.
 - Smaller projects expand in place when clicked.
 
-Each project has its own link, e.g. `/#lead-pipeline`, which opens that project's write-up directly. Useful for sharing one project in a LinkedIn post.
+To share one project: big projects have their own page, e.g. `/projects/lead-pipeline` (with its own LinkedIn preview); smaller ones open in place with `/#foreclosure-crm`. Useful for sharing one project in a LinkedIn post.
 
 ## The rule for this site
 
@@ -22,9 +22,12 @@ All text, projects, links and images are set in **`public/js/content.js`**. You 
   - put an `.mp4` in `public/media/` and set `introVideo.src: '/media/intro.mp4'`. Keep it under ~50 MB (export at 1080p, H.264).
   - If you film vertically on a phone, set `introVideo.aspect: '9 / 16'`.
   - The player is sized from the screen height so the top of "Selected work" is always visible under it on first load.
+- **Add the music:** put the audio file at `public/media/music.mp3`. The record button in the top right only appears once that file exists. Nothing plays until a visitor clicks it. The `music` block in `content.js` sets the title, the start and loop points (in seconds) and the volume. Only use a track you have the rights to: this is a public site.
 - **Add your CV:** put the PDF in `public/` and set `links.resume`.
 
-Colours and fonts are CSS variables at the top of `public/css/style.css`. The site is always light, even on phones set to dark mode.
+Colours and fonts are CSS variables at the top of `public/css/style.css`. The site is always light, even on phones set to dark mode. The drifting dust in the background is drawn by `setupDust()` in `public/js/app.js` (it stays still for visitors who turn on reduced motion).
+
+Project pages open inside the same page rather than loading a new one, so music keeps playing. Their URLs (`/projects/<id>`) still work for sharing and reloading.
 
 ## Running locally
 

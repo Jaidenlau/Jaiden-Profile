@@ -329,10 +329,15 @@
     };
     const applyFilter = (cat) => {
       filters.querySelectorAll('.filter').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
+      let closed = false;
       rows().forEach((li) => {
         li.hidden = cat !== 'all' && li.dataset.cat !== cat;
-        if (li.hidden) setOpen(li, false);
+        if (li.hidden && li.classList.contains('open')) {
+          setOpen(li, false);
+          closed = true;
+        }
       });
+      if (closed) clearHash();
       number();
     };
     filters.addEventListener('click', (e) => {
@@ -364,6 +369,7 @@
       if (shift) window.scrollBy({ top: shift, behavior: 'instant' });
       requestAnimationFrame(() => rows().forEach((o) => o.classList.remove('instant')));
 
+      if (scroll) li.classList.add('instant'); // full height now, so the scroll lands
       setOpen(li, opening);
       if (opening) history.replaceState(null, '', `#${li.id}`);
       else clearHash();
@@ -374,30 +380,38 @@
       if (b) toggle(b.closest('.proj'));
     });
 
-    // Deep links: /#lead-pipeline opens that project, so one can be shared directly.
+    // Deep links: /#foreclosure-crm opens that project, so one can be shared directly.
     const fromHash = () => {
-      const id = decodeURIComponent(location.hash.slice(1));
+      let id;
+      try {
+        id = decodeURIComponent(location.hash.slice(1));
+      } catch {
+        return;
+      }
       const li = id && document.getElementById(id);
       if (!li || !li.classList.contains('proj')) return;
-      if (li.classList.contains('proj-page')) return location.replace(`/projects/${li.id}`);
+      if (li.classList.contains('proj-page')) return navigate(`/projects/${li.id}`, { replace: true });
       applyFilter('all');
       if (!li.classList.contains('open')) toggle(li, { scroll: true });
     };
-    window.addEventListener('hashchange', fromHash);
+    window.addEventListener('hashchange', () => {
+      if ($('#view-home').hidden) return;
+      if (!location.hash) return rows().forEach((o) => o.classList.contains('open') && setOpen(o, false));
+      fromHash();
+    });
 
     number();
     fromHash();
   }
 
   // ---- Project page (/projects/<id>) ---------------------------------------
-  function renderProject() {
-    const main = $('#main');
-    const id = (location.pathname.match(/^\/projects\/([a-z0-9-]+)/) || [])[1];
+  function renderProject(id) {
+    const main = $('#view-project');
     const pages = S.projects.filter((x) => x.page);
     const p = pages.find((x) => x.id === id);
     if (!p) {
       main.innerHTML = `<p class="eyebrow">Not found</p><h1 class="display">That project isn't here.</h1><p><a class="button" href="/">See my projects</a></p>`;
-      return;
+      return null;
     }
     const at = pages.indexOf(p);
     const next = pages[(at + 1) % pages.length];
@@ -415,15 +429,17 @@
     // Main visual: the project's video, else its first image, else its diagram.
     const media = video || coverHTML(p);
     const gallery = video ? images : images.slice(1);
+    // The header shows the tagline, or the summary when there's no tagline;
+    // either way the summary paragraph appears once.
     const sections = p.sections && p.sections.length
       ? p.sections
-      : [{ heading: 'Overview', body: p.summary, bullets: p.highlights || [] }];
+      : [{ heading: 'What I built', body: p.tagline ? p.summary : '', bullets: p.highlights || [] }];
     const links = (p.links || [])
       .map((l) => `<a class="button button-ghost" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`)
       .join('');
 
     main.innerHTML = `
-      <a class="pp-back" href="/#work"><span aria-hidden="true">←</span> All projects</a>
+      <a class="pp-back" href="/#work" data-back><span aria-hidden="true">←</span> All projects</a>
 
       <header class="pp-head">
         <p class="pp-client"><strong>${esc(clientName)}</strong>${clientRest.length ? ` · ${esc(clientRest.join(' · '))}` : ''}</p>
@@ -439,7 +455,7 @@
 
       <div class="pp-body">
         <article class="pp-article">
-          ${p.sections && p.sections.length ? `<section class="pp-section"><h2>Overview</h2><p>${esc(p.summary)}</p></section>` : ''}
+          ${p.sections && p.sections.length && p.tagline ? `<section class="pp-section"><h2>Overview</h2><p>${esc(p.summary)}</p></section>` : ''}
           ${sections
             .map(
               (sec) => `
@@ -461,10 +477,279 @@
       ${gallery.length ? `<section class="pp-gallery" aria-label="Screens and photos">${gallery.map((img) => shotHTML(img)).join('')}</section>` : ''}
 
       ${next && next !== p ? `<a class="pp-next" href="/projects/${esc(next.id)}"><span class="proj-label">Next project</span><span class="pp-next-title">${esc(next.title)} <span aria-hidden="true">→</span></span><span class="pp-next-client">${esc(shortClient(next.client))}</span></a>` : ''}`;
+    return p;
+  }
+
+  // ---- Router -------------------------------------------------------------
+  // Home and project pages live in one document, so the music keeps playing
+  // when someone opens a project. Real URLs still work for sharing and reloads.
+  const PROJECT_PATH = /^\/projects\/([a-z0-9-]+)\/?$/;
+
+  function pauseIntroVideo() {
+    const v = $('#hero video');
+    if (v) v.pause();
+    const f = $('#hero iframe');
+    if (f) f.src = f.src; // reloading the embed is the only way to stop it
+  }
+
+  function route({ restoreScroll } = {}) {
+    const home = $('#view-home');
+    const view = $('#view-project');
+    const m = PROJECT_PATH.exec(location.pathname);
+    if (m) {
+      if (!home.hidden) pauseIntroVideo();
+      const p = renderProject(m[1]);
+      home.hidden = true;
+      view.hidden = false;
+      document.title = p ? `${p.title} · ${S.name}` : `Not found · ${S.name}`;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    } else {
+      view.hidden = true;
+      view.innerHTML = '';
+      home.hidden = false;
+      document.title = `${S.name} · Projects & Work`;
+      if (restoreScroll != null) window.scrollTo({ top: restoreScroll, behavior: 'instant' });
+    }
+  }
+
+  function navigate(url, { replace = false } = {}) {
+    const leavingHome = !$('#view-home').hidden;
+    // Remember where the visitor was on the list, for the back button.
+    if (leavingHome && !replace) history.replaceState({ ...(history.state || {}), scrollY: window.scrollY }, '');
+    history[replace ? 'replaceState' : 'pushState']({ fromHome: leavingHome }, '', url);
+    route();
+    const hash = url.split('#')[1];
+    if (hash && $('#view-project').hidden) {
+      const target = document.getElementById(hash);
+      if (target) target.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+  }
+
+  function setupRouter() {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.target.closest('a[href]');
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      const url = new URL(a.href, location.href);
+      if (url.origin !== location.origin) return;
+      const toProject = PROJECT_PATH.test(url.pathname);
+      const toHome = url.pathname === '/' && !$('#view-project').hidden;
+      if (!toProject && !toHome) return;
+      e.preventDefault();
+      // "All projects" goes back to the exact spot on the list when it can.
+      if (a.hasAttribute('data-back') && history.state && history.state.fromHome) return history.back();
+      navigate(url.pathname + url.hash);
+    });
+    window.addEventListener('popstate', () => route({ restoreScroll: (history.state && history.state.scrollY) || 0 }));
+  }
+
+  // ---- Background dust ----------------------------------------------------
+  // Fine specks drifting along two slow arcs, plus a faint scatter that
+  // twinkles. Kept very light so it never competes with the content.
+  function setupDust() {
+    const canvas = $('#dust');
+    if (!canvas || !canvas.getContext) return;
+    const g = canvas.getContext('2d');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Each stream is an arc: centre (as a fraction of the viewport), radius and thickness.
+    const STREAMS = [
+      { cx: 0.82, cy: -0.28, r: 0.62, spread: 0.06, dir: 1 },
+      { cx: 0.05, cy: 1.3, r: 0.7, spread: 0.07, dir: -1 },
+    ];
+    let W = 0, H = 0, parts = [], last = 0, raf = 0;
+
+    const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+
+    function seed() {
+      const area = W * H;
+      const perStream = Math.min(1300, Math.round(area / 1000));
+      parts = [];
+      STREAMS.forEach((st, si) => {
+        for (let i = 0; i < perStream; i++) {
+          parts.push({
+            s: si,
+            a: Math.random() * Math.PI * 2,
+            off: gauss() * st.spread,
+            speed: (0.00006 + Math.random() * 0.00014) * st.dir,
+            size: 0.7 + Math.random() * 0.9,
+            alpha: 0.07 + Math.random() * 0.26,
+            tw: 0.4 + Math.random() * 1.6,
+            ph: Math.random() * 6.28,
+            hot: Math.random() < 0.025,
+          });
+        }
+      });
+      const scatter = Math.min(160, Math.round(area / 9000));
+      for (let i = 0; i < scatter; i++) {
+        parts.push({ s: -1, x: Math.random(), y: Math.random(), vy: -(0.000004 + Math.random() * 0.00001), size: 0.5 + Math.random() * 0.7, alpha: 0.04 + Math.random() * 0.12, tw: 0.3 + Math.random(), ph: Math.random() * 6.28, hot: false });
+      }
+    }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      seed();
+      draw(performance.now(), 0);
+    }
+
+    function draw(t, dt) {
+      g.clearRect(0, 0, W, H);
+      const scale = Math.max(W, H);
+      for (const p of parts) {
+        let x, y;
+        if (p.s >= 0) {
+          const st = STREAMS[p.s];
+          p.a += p.speed * dt;
+          const r = (st.r + p.off + Math.sin(p.a * 3 + p.ph) * 0.01) * scale;
+          x = st.cx * W + Math.cos(p.a) * r;
+          y = st.cy * H + Math.sin(p.a) * r;
+        } else {
+          p.y += p.vy * dt;
+          if (p.y < -0.02) p.y = 1.02;
+          x = p.x * W;
+          y = p.y * H;
+        }
+        if (x < -2 || y < -2 || x > W + 2 || y > H + 2) continue;
+        g.globalAlpha = p.alpha * (0.55 + 0.45 * Math.sin(t * 0.001 * p.tw + p.ph));
+        g.fillStyle = p.hot ? '#d6452a' : '#1a1a18';
+        g.fillRect(x, y, p.size, p.size);
+      }
+      g.globalAlpha = 1;
+    }
+
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(t - last, 100);
+      if (dt < 33) return; // ~30fps is plenty for drifting dust
+      last = t;
+      draw(t, dt);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    if (still) return;
+    raf = requestAnimationFrame(frame);
+    document.addEventListener('visibilitychange', () => {
+      cancelAnimationFrame(raf);
+      if (!document.hidden) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    });
+  }
+
+  // ---- Radio ---------------------------------------------------------------
+  // A small record in the top right. Nothing plays until it's clicked
+  // (browsers block sound without a click anyway). Plays introStart→loopEnd
+  // once, then loops loopStart→loopEnd with no gap, for as long as the tab is open.
+  function setupRadio() {
+    const M = S.music || {};
+    const slot = $('#radio');
+    if (!slot || !M.src) return;
+    const title = M.title || 'Music';
+
+    // Only show the button once the track actually exists on the server.
+    fetch(M.src, { method: 'HEAD' })
+      .then((r) => {
+        if (!r.ok) return;
+        document.body.classList.add('has-radio');
+        slot.innerHTML = `
+          <button type="button" class="radio" aria-pressed="false" aria-label="Play music: ${esc(title)}">
+            <span class="radio-label">${esc(title)}</span>
+            <span class="radio-disc" aria-hidden="true"></span>
+          </button>`;
+        wire(slot.querySelector('.radio'));
+      })
+      .catch(() => {});
+
+    function wire(btn) {
+      const VOLUME = M.volume ?? 0.35;
+      let ctx, gain, buffer, source;
+      let playing = false;
+
+      const set = (state) => {
+        btn.dataset.state = state;
+        btn.setAttribute('aria-pressed', String(state === 'playing'));
+        btn.setAttribute('aria-label', `${state === 'playing' ? 'Pause' : 'Play'} music: ${title}`);
+      };
+      const fadeTo = (v, secs) => {
+        const now = ctx.currentTime;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(v, now + secs);
+      };
+
+      async function play() {
+        playing = true;
+        if (!ctx) {
+          // Let iPhones play it even with the silent switch on.
+          if (navigator.audioSession) navigator.audioSession.type = 'playback';
+          const AC = window.AudioContext || window.webkitAudioContext;
+          ctx = new AC();
+          gain = ctx.createGain();
+          gain.gain.value = 0;
+          gain.connect(ctx.destination);
+        }
+        const resumed = ctx.resume(); // must start inside the click
+        if (!buffer) {
+          set('loading');
+          const data = await fetch(M.src).then((r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.arrayBuffer();
+          });
+          buffer = await new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail));
+        }
+        await resumed;
+        if (!playing) return; // clicked again while loading
+        if (!source) {
+          const end = Math.min(M.loopEnd ?? buffer.duration, buffer.duration);
+          source = ctx.createBufferSource();
+          source.buffer = buffer;
+          source.loop = true;
+          source.loopStart = Math.min(M.loopStart ?? 0, end);
+          source.loopEnd = end;
+          source.connect(gain);
+          source.start(0, Math.min(M.introStart ?? 0, end));
+        }
+        fadeTo(VOLUME, 1.2);
+        set('playing');
+      }
+
+      function pause() {
+        playing = false;
+        set('paused');
+        if (!ctx) return;
+        fadeTo(0, 0.4);
+        setTimeout(() => {
+          if (!playing) ctx.suspend();
+        }, 450);
+      }
+
+      btn.addEventListener('click', () => {
+        if (playing) return pause();
+        play().catch(() => {
+          playing = false;
+          set('error');
+          btn.setAttribute('aria-label', 'Music unavailable');
+        });
+      });
+
+      // Don't talk over the intro video.
+      const intro = $('#hero video');
+      if (intro) intro.addEventListener('play', () => playing && pause());
+      set('paused');
+    }
   }
 
   renderFooter();
-  const page = document.body.dataset.page;
-  if (page === 'work') renderWork();
-  if (page === 'project') renderProject();
+  renderWork();
+  setupRouter();
+  route();
+  setupDust();
+  setupRadio();
 })();
