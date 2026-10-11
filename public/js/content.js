@@ -102,6 +102,10 @@ window.SITE = {
     {
       id: 'lead-pipeline',
       page: true,
+      images: [
+        { src: '/images/projects/lead-pipeline/1.webp', caption: 'Diagram of the pipeline: three agents find, score and draft; a person still sends each reply' },
+        { src: '/images/projects/lead-pipeline/2.webp', caption: 'The Google Sheet the pipeline writes to, shown as tabs and column headers with every record removed' },
+      ],
       title: 'Multi-agent lead pipeline in Traditional Chinese',
       client: 'John Hu Migration Consulting · Hong Kong',
       year: '2026',
@@ -124,6 +128,16 @@ window.SITE = {
     {
       id: 'bank-erp',
       page: true,
+      images: [
+        { src: '/images/projects/bank-erp/1.webp', caption: 'No-code approval workflow builder, with a live routing preview from the same engine the system runs on' },
+        { src: '/images/projects/bank-erp/2.webp', caption: 'Maker-checker in action: the system refuses a self-approval and shows the rule it enforces' },
+        { src: '/images/projects/bank-erp/3.webp', caption: 'Two-envelope tender: price offers stay sealed at the data layer until technical sign-off' },
+        { src: '/images/projects/bank-erp/4.webp', caption: 'Bid comparative statement: the cheapest bid is blocked because it failed technical evaluation' },
+        { src: '/images/projects/bank-erp/5.webp', caption: 'Invoice three-way match: work order, goods receipt and invoice must agree before payment' },
+        { src: '/images/projects/bank-erp/6.webp', caption: 'Hash-chained audit trail: every record verified end to end' },
+        { src: '/images/projects/bank-erp/7.webp', caption: 'One audit record: the field-level change beside its recomputed SHA-256 proof' },
+        { src: '/images/projects/bank-erp/8.webp', caption: 'The proposed three-tier architecture from the bid' },
+      ],
       title: 'Procurement ERP for a bank tender',
       client: 'Shahjalal Islami Bank · Bangladesh',
       year: '2026',

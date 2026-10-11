@@ -16,7 +16,7 @@ Only projects someone paid for go in `projects`. Side projects and unpaid builds
 All text, projects, links and images are set in **`public/js/content.js`**. You shouldn't need to touch anything else.
 
 - **Add a project:** copy one of the objects in `projects`, give it a new `id`, fill it in. The list follows the order in the file, so put your best work first.
-- **Add a screenshot:** put it in `public/images/projects/` and set `image: '/images/projects/your-file.jpg'` on the project. It shows beside the write-up when the project is opened (16:10 landscape works best). Without one, a diagram is drawn instead (`cover`).
+- **Add screenshots:** put them in `public/images/projects/<id>/` and list them on the project as `images: [{ src, caption }]`. On a big project's page the first is the main picture and the rest form a captioned gallery; a smaller project shows its first image when expanded. Without images, a diagram is drawn instead (`cover`). Blur names, emails, phone numbers and anything confidential first.
 - **Add the intro video:** either
   - upload it to YouTube as *Unlisted* and paste the id into `introVideo.youtube`, or
   - put an `.mp4` in `public/media/` and set `introVideo.src: '/media/intro.mp4'`. Keep it under ~50 MB (export at 1080p, H.264).
