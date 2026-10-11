@@ -36,15 +36,16 @@ window.SITE = {
     aspect: '16 / 9',
   },
 
-  // The record in the top right. Put the audio file at public/media/music.mp3;
+  // The record in the top right. The audio file lives at public/media/music.mp3;
   // the button only appears once that file exists. Times are in seconds:
   // plays introStart→loopEnd once, then loops loopStart→loopEnd.
+  // The current track is an original loop made for this site (no licence needed).
   music: {
     src: '/media/music.mp3',
-    title: 'Takane no Hanako-san (Instrumental)',
-    introStart: 25,
-    loopStart: 40,
-    loopEnd: 65,
+    title: 'Late Build · original loop',
+    introStart: 0,
+    loopStart: 11.1628,
+    loopEnd: 55.8141,
     volume: 0.35,
   },
 
