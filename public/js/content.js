@@ -36,17 +36,14 @@ window.SITE = {
     aspect: '16 / 9',
   },
 
-  // The record in the top right. The audio file lives at public/media/music.mp3;
-  // the button only appears once that file exists. Times are in seconds:
-  // plays introStart→loopEnd once, then loops loopStart→loopEnd.
-  // The current track is an original loop made for this site (no licence needed).
+  // The record in the top right. Nothing plays until a visitor clicks it.
+  // `intro` plays once, then `loop` repeats with no gap for the rest of the visit.
+  // The button only appears once the loop file exists. Use music you have the rights to.
   music: {
-    src: '/media/music.mp3',
-    title: 'Late Build · original loop',
-    introStart: 0,
-    loopStart: 11.1628,
-    loopEnd: 55.8141,
-    volume: 0.35,
+    intro: '/media/music-intro.mp3',
+    loop: '/media/music-loop.mp3',
+    title: 'Music',
+    volume: 0.3,
   },
 
   categories: [

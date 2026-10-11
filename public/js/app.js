@@ -645,16 +645,20 @@
 
   // ---- Radio ---------------------------------------------------------------
   // A small record in the top right. Nothing plays until it's clicked
-  // (browsers block sound without a click anyway). Plays introStart→loopEnd
-  // once, then loops loopStart→loopEnd with no gap, for as long as the tab is open.
+  // (browsers block sound without a click anyway). Two ways to set it up in
+  // content.js:
+  //   - two files: `intro` plays once, then `loop` repeats with no gap
+  //   - one file:  `src`, playing introStart→loopEnd once, then looping loopStart→loopEnd
+  // It keeps playing while visitors open projects, for as long as the tab is open.
   function setupRadio() {
     const M = S.music || {};
     const slot = $('#radio');
-    if (!slot || !M.src) return;
+    const loopSrc = M.loop || M.src;
+    if (!slot || !loopSrc) return;
     const title = M.title || 'Music';
 
     // Only show the button once the track actually exists on the server.
-    fetch(M.src, { method: 'HEAD' })
+    fetch(loopSrc, { method: 'HEAD' })
       .then((r) => {
         if (!r.ok) return;
         document.body.classList.add('has-radio');
@@ -667,9 +671,22 @@
       })
       .catch(() => {});
 
+    // MP3s can carry a few milliseconds of encoder silence at either end, which
+    // would show up as a gap at the loop point. Find where the sound really is.
+    function audibleRange(buf) {
+      const limit = 1e-4;
+      const chans = Array.from({ length: buf.numberOfChannels }, (_, c) => buf.getChannelData(c));
+      const loud = (i) => chans.some((d) => Math.abs(d[i]) > limit);
+      let a = 0, z = buf.length - 1;
+      const maxTrim = Math.round(buf.sampleRate * 0.1); // never trim more than 100 ms
+      while (a < maxTrim && !loud(a)) a++;
+      while (buf.length - 1 - z < maxTrim && z > a && !loud(z)) z--;
+      return { start: a / buf.sampleRate, end: (z + 1) / buf.sampleRate };
+    }
+
     function wire(btn) {
-      const VOLUME = M.volume ?? 0.35;
-      let ctx, gain, buffer, source;
+      const VOLUME = M.volume ?? 0.3;
+      let ctx, gain, introBuf, loopBuf, started = false;
       let playing = false;
 
       const set = (state) => {
@@ -683,6 +700,45 @@
         gain.gain.setValueAtTime(gain.gain.value, now);
         gain.gain.linearRampToValueAtTime(v, now + secs);
       };
+      const load = (url) =>
+        fetch(url)
+          .then((r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.arrayBuffer();
+          })
+          .then((data) => new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail)));
+
+      function start() {
+        const t = ctx.currentTime + 0.05;
+        const loop = ctx.createBufferSource();
+        loop.buffer = loopBuf;
+        loop.loop = true;
+        loop.connect(gain);
+
+        if (M.loop) {
+          // Two files: intro once, then the loop file on repeat.
+          const lr = audibleRange(loopBuf);
+          loop.loopStart = lr.start;
+          loop.loopEnd = lr.end;
+          let loopAt = t;
+          if (introBuf) {
+            const ir = audibleRange(introBuf);
+            const intro = ctx.createBufferSource();
+            intro.buffer = introBuf;
+            intro.connect(gain);
+            intro.start(t, ir.start, ir.end - ir.start);
+            loopAt = t + (ir.end - ir.start);
+          }
+          loop.start(loopAt, lr.start);
+        } else {
+          // One file with intro and loop points.
+          const end = Math.min(M.loopEnd ?? loopBuf.duration, loopBuf.duration);
+          loop.loopStart = Math.min(M.loopStart ?? 0, end);
+          loop.loopEnd = end;
+          loop.start(t, Math.min(M.introStart ?? 0, end));
+        }
+        started = true;
+      }
 
       async function play() {
         playing = true;
@@ -696,26 +752,13 @@
           gain.connect(ctx.destination);
         }
         const resumed = ctx.resume(); // must start inside the click
-        if (!buffer) {
+        if (!loopBuf) {
           set('loading');
-          const data = await fetch(M.src).then((r) => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.arrayBuffer();
-          });
-          buffer = await new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail));
+          [introBuf, loopBuf] = await Promise.all([M.loop && M.intro ? load(M.intro) : null, load(loopSrc)]);
         }
         await resumed;
         if (!playing) return; // clicked again while loading
-        if (!source) {
-          const end = Math.min(M.loopEnd ?? buffer.duration, buffer.duration);
-          source = ctx.createBufferSource();
-          source.buffer = buffer;
-          source.loop = true;
-          source.loopStart = Math.min(M.loopStart ?? 0, end);
-          source.loopEnd = end;
-          source.connect(gain);
-          source.start(0, Math.min(M.introStart ?? 0, end));
-        }
+        if (!started) start();
         fadeTo(VOLUME, 1.2);
         set('playing');
       }
@@ -726,7 +769,7 @@
         if (!ctx) return;
         fadeTo(0, 0.4);
         setTimeout(() => {
-          if (!playing) ctx.suspend();
+          if (!playing) ctx.suspend(); // freezes both tracks exactly where they are
         }, 450);
       }
 
