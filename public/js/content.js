@@ -46,7 +46,7 @@ window.SITE = {
     introStart: 0,
     loopStart: 15.4301,
     loopEnd: 39.988,
-    volume: 0.1, // 0–1; 0.1 is about half as loud (to the ear) as 0.3
+    volume: 0.04, // 0–1. Each halving of loudness to the ear is roughly ×0.32
   },
 
   categories: [

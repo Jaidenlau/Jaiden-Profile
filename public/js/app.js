@@ -685,7 +685,7 @@
     }
 
     function wire(btn) {
-      const VOLUME = M.volume ?? 0.1;
+      const VOLUME = M.volume ?? 0.04;
       let ctx, gain, introBuf, loopBuf, started = false;
       let playing = false;
 
