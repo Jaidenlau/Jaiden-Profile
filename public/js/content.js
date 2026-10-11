@@ -37,12 +37,15 @@ window.SITE = {
   },
 
   // The record in the top right. Nothing plays until a visitor clicks it.
-  // `intro` plays once, then `loop` repeats with no gap for the rest of the visit.
-  // The button only appears once the loop file exists. Use music you have the rights to.
+  // bloom.mp3 is the section of the song cut from the iMovie export: it plays
+  // from introStart once, then loops loopStart→loopEnd (the song's 0:40→1:05)
+  // with no gap for the rest of the visit. Times are in seconds within the file.
   music: {
-    intro: '/media/music-intro.mp3',
-    loop: '/media/music-loop.mp3',
-    title: 'Music',
+    src: '/media/bloom.mp3',
+    title: 'Bloom · Sakane Horizon',
+    introStart: 0,
+    loopStart: 15.4301,
+    loopEnd: 39.988,
     volume: 0.3,
   },
 
