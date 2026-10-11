@@ -46,16 +46,26 @@ window.SITE = {
     Project fields
       id        short, unique, used in the URL (#lead-pipeline)
       category  one of the category ids above
-      client    who it was for. Keep it generic unless you have permission to name them.
-      status    Live · Deployed · In delivery · Demo · Delivered · Handed over
+      client    'Company name · detail'. The part before ' · ' shows on the one-line row.
+                Keep it generic where a contract forbids naming the client.
+      status    Live · Deployed · In delivery · Demo · Presented · Delivered · Handed over
       image     optional screenshot/photo. Without one, a diagram cover is drawn
       cover     diagram used when there's no image: agents, pipeline, workflow, web,
                 chart, map, voice, brief, migrate, chat, calendar, house, cards, trio
       links     [{ label, url }]
+
+    Big projects get their own page at /projects/<id> instead of expanding in the list:
+      page      true = the row links to its own page (no plus)
+      tagline   one sentence under the title on that page
+      video     optional { youtube: 'id' } or { src: '/media/x.mp4' }, plus aspect: '9 / 16' if vertical.
+                Without one, the page shows the project's diagram.
+      stats     [{ value, label }] big numbers across the top of the page
+      sections  [{ heading, body, bullets: [] }] the long write-up
   */
   projects: [
     {
       id: 'insurer-agent',
+      page: true,
       title: 'AI sales agent for a health insurer',
       client: 'Health insurer · subcontract',
       year: '2026',
@@ -77,8 +87,9 @@ window.SITE = {
     },
     {
       id: 'lead-pipeline',
+      page: true,
       title: 'Multi-agent lead pipeline in Traditional Chinese',
-      client: 'Migration consultancy · Hong Kong',
+      client: 'John Hu Migration Consulting · Hong Kong',
       year: '2026',
       status: 'Live',
       category: 'ai',
@@ -90,21 +101,23 @@ window.SITE = {
         'Every lead gets a score, a confidence value and the model’s reasoning, so staff can see why it was picked',
         'Replies are drafted in Cantonese-style Traditional Chinese and sent by a person through a one-click link, not by a bot',
         'Leads the model can’t score go to a review queue; opt-out and do-not-contact lists live alongside the pipeline',
+        'A second pipeline scores public LinkedIn profiles of immigration sales staff in Hong Kong and Taiwan for the firm’s hiring, each with a fit score and reasoning',
       ],
       role: 'Architecture, delivery and client lead',
-      stack: ['Multi-agent pipeline', 'Kimi API', 'Serper', 'Brave Search', 'Google Sheets API', 'VPS'],
+      stack: ['Multi-agent pipeline', 'Kimi API', 'Serper', 'Brave Search', 'LinkedIn', 'Google Sheets API', 'VPS'],
       links: [],
     },
     {
       id: 'bank-erp',
-      title: 'Procurement ERP for a commercial bank',
-      client: 'Commercial bank · Bangladesh · tender',
+      page: true,
+      title: 'Procurement ERP for a bank tender',
+      client: 'Shahjalal Islami Bank · Bangladesh',
       year: '2026',
-      status: 'Demo',
+      status: 'Presented',
       category: 'platform',
       cover: 'workflow',
       summary:
-        'A working procurement ERP built for a bank tender, so the bank could test it instead of reading about it. A purchase moves from requisition through approvals, tender, bid evaluation and invoice matching to payment. Every control is enforced in code and written to a tamper-evident audit trail. I also wrote the technical bid.',
+        'A working procurement ERP built for Shahjalal Islami Bank’s tender, so the bank could test it instead of reading about it. A purchase moves from requisition through approvals, tender, bid evaluation and invoice matching to payment. Every control is enforced in code and written to a tamper-evident audit trail. I wrote the technical bid, and after we submitted the tender I presented the demo to the bank in the interview round.',
       highlights: [
         'Six internal roles plus an external vendor portal',
         '34 automated checks on the controls: maker-checker, three-way match, quantity matching, tamper detection',
@@ -112,20 +125,21 @@ window.SITE = {
         'Money stored as exact integers; a stateless app with signed-cookie sessions, so it can run as several copies behind a load balancer',
         'The bid: 25 modules, a three-tier architecture with production, DR and far-DR sites, and a 90-working-day rollout plan',
       ],
-      role: 'Technical bid and demo',
+      role: 'Technical bid, demo and presentation',
       stack: ['Next.js', 'TypeScript', 'React', 'Prisma', 'SQLite', 'Tailwind', 'Playwright'],
       links: [],
     },
     {
       id: 'construction-agents',
+      page: true,
       title: 'Three AI agents for a construction company',
-      client: 'Construction company',
+      client: 'Synchro IA · for a construction company',
       year: '2026',
       status: 'Handed over',
       category: 'ai',
       cover: 'trio',
       summary:
-        'An executive assistant that triages email and drafts replies, a subcontractor agent that runs calls from a French script and updates Monday.com, and a project coordinator that reads WhatsApp groups and pulls out tasks and owners. They run on OpenClaw on the client’s Mac mini and were tested in a sandbox before any production credentials went in.',
+        'Built with Synchro IA for one of their clients, a construction company. An executive assistant that triages email and drafts replies, a subcontractor agent that runs calls from a French script and updates Monday.com, and a project coordinator that reads WhatsApp groups and pulls out tasks and owners. They run on OpenClaw on the client’s Mac mini and were tested in a sandbox before any production credentials went in.',
       highlights: [
         'Email sorted into urgent, follow-up and information, with nothing sent without approval',
         'Subcontractor calls: French script, answer capture (Oui / Non / À confirmer), a call-queue state machine and bilingual escalation',
@@ -139,14 +153,15 @@ window.SITE = {
     },
     {
       id: 'merchant-onboarding',
+      page: true,
       title: 'Merchant onboarding platform for a bank',
-      client: 'Commercial bank · Bangladesh · evaluation demo',
+      client: 'UCB · Bangladesh',
       year: '2026',
       status: 'Demo',
       category: 'platform',
       cover: 'web',
       summary:
-        'A bank-grade merchant onboarding platform built as a working demo the bank’s own team could log into and test. Admins change the onboarding form without code, and approvals follow a maker-checker rule the database itself enforces. I led the engagement: the proposal, the build plan and the capability matrix.',
+        'A bank-grade merchant onboarding platform built as a working demo UCB’s own team could log into and test. Admins change the onboarding form without code, and approvals follow a maker-checker rule the database itself enforces. I led the engagement: the proposal, the build plan and the capability matrix.',
       highlights: [
         'Config-driven forms: one field registry drives both the form and the server-side validation',
         'Maker-checker enforced in the interface, the API and a database CHECK constraint',
@@ -156,6 +171,20 @@ window.SITE = {
       ],
       role: 'Engagement lead',
       stack: ['PostgreSQL', 'Docker Compose', 'Argon2id', 'Solution architecture'],
+      links: [],
+    },
+    {
+      id: 'brac-bank',
+      title: 'Technical proposal and interview presentation',
+      client: 'BRAC Bank · Bangladesh',
+      year: '2026',
+      status: 'Presented',
+      category: 'platform',
+      cover: 'web',
+      summary: 'A technical proposal and interview presentation for BRAC Bank, for a different product from the Shahjalal ERP. Full write-up coming soon.',
+      highlights: [],
+      role: 'Technical proposal and presentation',
+      stack: ['Solution architecture', 'Technical writing'],
       links: [],
     },
     {
@@ -181,13 +210,13 @@ window.SITE = {
     {
       id: 'outreach-migration',
       title: 'Lead outreach system, migrated mid-build',
-      client: 'Client project',
+      client: 'The Hutong',
       year: '2026',
       status: 'Delivered',
       category: 'ai',
       cover: 'migrate',
       summary:
-        'A lead outreach system built on OpenClaw. Partway through the build we lost access to the client’s infrastructure, so we moved the whole system onto our own servers, switched the model provider to the Kimi API and still delivered on the original date.',
+        'A lead outreach system for The Hutong, built on OpenClaw. Partway through the build the system had to move off the client’s infrastructure, so we moved all of it onto our own servers, switched the model provider to the Kimi API and still delivered on the original date.',
       highlights: [
         'Full infrastructure migration in the middle of the project',
         'Model provider swapped without changing what the client saw',
@@ -200,12 +229,12 @@ window.SITE = {
     {
       id: 'early-openclaw',
       title: 'Three-agent OpenClaw setup, at launch',
-      client: 'Construction client',
+      client: 'Synchro IA',
       year: '2026',
       status: 'Delivered',
       category: 'ai',
       cover: 'trio',
-      summary: 'A three-agent OpenClaw setup built for the same client right after OpenClaw was released. Full write-up coming soon.',
+      summary: 'A separate three-agent OpenClaw setup for Synchro IA, built right after OpenClaw was released. Full write-up coming soon.',
       highlights: [],
       role: '',
       stack: ['OpenClaw'],
@@ -262,13 +291,13 @@ window.SITE = {
     {
       id: 'seller-agents',
       title: 'Seller acquisition agents',
-      client: 'Jewellery marketplace · US',
+      client: 'GemGem · US',
       year: '2026',
       status: 'Delivered',
       category: 'ai',
       cover: 'cards',
       summary:
-        'A finder agent that sources independent jewellery sellers in the US and a qualifier agent that verifies them before they reach the sales team, built to hit a weekly qualified-lead target.',
+        'For GemGem, a jewellery marketplace: a finder agent that sources independent jewellery sellers in the US and a qualifier agent that verifies them before they reach the sales team, built to hit a weekly qualified-lead target.',
       highlights: ['Finder and qualifier agents working as a pair', 'Entity verification before anything reaches a person', 'Built against a weekly throughput target'],
       role: 'Engineer',
       stack: ['Multi-agent', 'Entity verification', 'Lead scoring'],

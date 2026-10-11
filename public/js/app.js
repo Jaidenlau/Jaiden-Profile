@@ -197,6 +197,20 @@
 
   function rowHTML(p) {
     const id = esc(p.id);
+    // Big projects open their own page; the row is a plain link with an arrow.
+    if (p.page) {
+      return `
+      <li class="proj proj-page" id="${id}" data-cat="${esc(p.category)}">
+        <h3 class="proj-head">
+          <a class="proj-toggle" href="/projects/${id}">
+            <span class="proj-num"></span>
+            <span class="proj-title">${esc(p.title)}</span>
+            <span class="proj-client">${esc(shortClient(p.client))}</span>
+            <span class="proj-arrow" aria-hidden="true">→</span>
+          </a>
+        </h3>
+      </li>`;
+    }
     const facts = [
       ['Status', `<span class="status" data-status="${esc((p.status || '').toLowerCase())}">${esc(p.status)}</span>`],
       ['Client', esc(p.client)],
@@ -258,8 +272,7 @@
   }
 
   // ---- Work page -----------------------------------------------------------
-  function videoHTML() {
-    const v = S.introVideo || {};
+  function videoHTML(v = S.introVideo || {}, { placeholder = true } = {}) {
     // '16 / 9' -> 1.778. The CSS sizes the frame from this so the start of the
     // projects stays visible under the video on first load.
     const [aw, ah] = String(v.aspect || '16 / 9').split('/').map(Number);
@@ -270,8 +283,10 @@
       inner = `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.youtube)}?rel=0&modestbranding=1" title="Intro video" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
     } else if (v.src) {
       inner = `<video controls playsinline preload="metadata" ${v.poster ? `poster="${esc(v.poster)}"` : ''}><source src="${esc(v.src)}"></video>`;
-    } else {
+    } else if (placeholder) {
       inner = `<div class="video-empty"><span class="play" aria-hidden="true"></span><span>Video coming soon</span></div>`;
+    } else {
+      return '';
     }
     return `<figure class="video${ratio < 1 ? ' video-tall' : ''}"><div class="video-frame" ${style}>${inner}</div></figure>`;
   }
@@ -319,6 +334,7 @@
 
     // ---- Expand / collapse (one project open at a time)
     function setOpen(li, open) {
+      if (!li.querySelector('.proj-panel')) return; // page projects don't expand
       li.classList.toggle('open', open);
       li.querySelector('.proj-toggle').setAttribute('aria-expanded', String(open));
       li.querySelector('.proj-panel').inert = !open;
@@ -346,7 +362,7 @@
       if (scroll) li.scrollIntoView({ block: 'start', behavior: 'instant' });
     }
     list.addEventListener('click', (e) => {
-      const b = e.target.closest('.proj-toggle');
+      const b = e.target.closest('button.proj-toggle');
       if (b) toggle(b.closest('.proj'));
     });
 
@@ -355,6 +371,7 @@
       const id = decodeURIComponent(location.hash.slice(1));
       const li = id && document.getElementById(id);
       if (!li || !li.classList.contains('proj')) return;
+      if (li.classList.contains('proj-page')) return location.replace(`/projects/${li.id}`);
       applyFilter('all');
       if (!li.classList.contains('open')) toggle(li, { scroll: true });
     };
@@ -362,6 +379,74 @@
 
     number();
     fromHash();
+  }
+
+  // ---- Project page (/projects/<id>) ---------------------------------------
+  function renderProject() {
+    const main = $('#main');
+    const id = (location.pathname.match(/^\/projects\/([a-z0-9-]+)/) || [])[1];
+    const pages = S.projects.filter((x) => x.page);
+    const p = pages.find((x) => x.id === id);
+    if (!p) {
+      main.innerHTML = `<p class="eyebrow">Not found</p><h1 class="display">That project isn't here.</h1><p><a class="button" href="/">See my projects</a></p>`;
+      return;
+    }
+    const at = pages.indexOf(p);
+    const next = pages[(at + 1) % pages.length];
+    const [clientName, ...clientRest] = String(p.client || '').split(' · ');
+
+    const facts = [
+      ['Client', esc(p.client)],
+      p.role ? ['My role', esc(p.role)] : null,
+      ['Status', `<span class="status" data-status="${esc((p.status || '').toLowerCase())}">${esc(p.status)}</span>`],
+      ['Year', esc(p.year)],
+    ].filter(Boolean);
+
+    const media = videoHTML(p.video || {}, { placeholder: false }) || coverHTML(p);
+    const sections = p.sections && p.sections.length
+      ? p.sections
+      : [{ heading: 'Overview', body: p.summary, bullets: p.highlights || [] }];
+    const links = (p.links || [])
+      .map((l) => `<a class="button button-ghost" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`)
+      .join('');
+
+    main.innerHTML = `
+      <a class="pp-back" href="/#work"><span aria-hidden="true">←</span> All projects</a>
+
+      <header class="pp-head">
+        <p class="pp-client"><strong>${esc(clientName)}</strong>${clientRest.length ? ` · ${esc(clientRest.join(' · '))}` : ''}</p>
+        <h1 class="pp-title">${esc(p.title)}</h1>
+        <p class="pp-tagline">${esc(p.tagline || p.summary)}</p>
+      </header>
+
+      <div class="pp-media">${media}</div>
+
+      <dl class="pp-facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+
+      ${p.stats && p.stats.length ? `<dl class="pp-stats">${p.stats.map((s) => `<div><dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd></div>`).join('')}</dl>` : ''}
+
+      <div class="pp-body">
+        <article class="pp-article">
+          ${p.sections && p.sections.length ? `<section class="pp-section"><h2>Overview</h2><p>${esc(p.summary)}</p></section>` : ''}
+          ${sections
+            .map(
+              (sec) => `
+            <section class="pp-section">
+              <h2>${esc(sec.heading)}</h2>
+              ${sec.body ? `<p>${esc(sec.body)}</p>` : ''}
+              ${sec.bullets && sec.bullets.length ? `<ul class="highlights">${sec.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
+            </section>`
+            )
+            .join('')}
+        </article>
+        <aside class="pp-aside">
+          ${p.sections && p.sections.length && p.highlights && p.highlights.length ? `<div><p class="proj-label">At a glance</p><ul class="highlights">${p.highlights.map((h) => `<li>${esc(h)}</li>`).join('')}</ul></div>` : ''}
+          ${p.stack && p.stack.length ? `<div><p class="proj-label">Stack</p><ul class="tags">${p.stack.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>` : ''}
+          ${links ? `<div class="proj-links">${links}</div>` : ''}
+        </aside>
+      </div>
+
+      ${next && next !== p ? `<a class="pp-next" href="/projects/${esc(next.id)}"><span class="proj-label">Next project</span><span class="pp-next-title">${esc(next.title)} <span aria-hidden="true">→</span></span><span class="pp-next-client">${esc(shortClient(next.client))}</span></a>` : ''}`;
   }
 
   // ---- About page ----------------------------------------------------------
@@ -431,4 +516,5 @@
   const page = document.body.dataset.page;
   if (page === 'work') renderWork();
   if (page === 'about') renderAbout();
+  if (page === 'project') renderProject();
 })();
