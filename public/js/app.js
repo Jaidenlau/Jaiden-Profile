@@ -185,32 +185,55 @@
     },
   };
 
-  function coverHTML(p, size) {
-    if (p.image) {
-      return `<div class="cover cover-image"><img src="${esc(p.image)}" alt="" loading="lazy"></div>`;
-    }
-    if (p.logo) {
-      return `<div class="cover cover-logo" style="background:${esc(p.logoBg || 'var(--ink)')}"><img src="${esc(p.logo)}" alt="" loading="lazy"></div>`;
-    }
+  function coverHTML(p) {
+    if (p.image) return `<div class="cover cover-image"><img src="${esc(p.image)}" alt="" loading="lazy"></div>`;
     const draw = MOTIFS[p.cover] || MOTIFS.agents;
-    return `<div class="cover cover-${size}" aria-hidden="true"><svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid meet">${draw(rng(p.id))}</svg></div>`;
+    return `<div class="cover" aria-hidden="true"><svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid meet">${draw(rng(p.id))}</svg></div>`;
   }
 
   const catLabel = (id) => (S.categories.find((c) => c.id === id) || {}).label || '';
+  // "Health insurer · subcontract" -> "Health insurer" for the one-line row.
+  const shortClient = (c) => String(c || '').split(' · ')[0];
 
-  function cardHTML(p, size) {
-    const tags = (p.stack || []).slice(0, size === 'lg' ? 4 : 3).map((t) => `<li>${esc(t)}</li>`).join('');
+  function rowHTML(p) {
+    const id = esc(p.id);
+    const facts = [
+      ['Status', `<span class="status" data-status="${esc((p.status || '').toLowerCase())}">${esc(p.status)}</span>`],
+      ['Client', esc(p.client)],
+      p.role ? ['My role', esc(p.role)] : null,
+      ['Type', esc(catLabel(p.category))],
+      ['Year', esc(p.year)],
+    ].filter(Boolean);
+    const links = (p.links || [])
+      .map((l) => `<a class="button button-ghost" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`)
+      .join('');
     return `
-      <article class="card card-${size}">
-        <button class="card-hit" type="button" data-open="${esc(p.id)}" aria-label="Open ${esc(p.title)}"></button>
-        ${coverHTML(p, size)}
-        <div class="card-body">
-          <p class="meta"><span class="status" data-status="${esc((p.status || '').toLowerCase())}">${esc(p.status)}</span><span>${esc(p.client)}</span></p>
-          <h3 class="card-title">${esc(p.title)}</h3>
-          ${size === 'lg' ? `<p class="card-summary">${esc(p.summary)}</p>` : ''}
-          <ul class="tags">${tags}</ul>
+      <li class="proj" id="${id}" data-cat="${esc(p.category)}">
+        <h3 class="proj-head">
+          <button type="button" class="proj-toggle" id="t-${id}" aria-expanded="false" aria-controls="p-${id}">
+            <span class="proj-num"></span>
+            <span class="proj-title">${esc(p.title)}</span>
+            <span class="proj-client">${esc(shortClient(p.client))}</span>
+            <span class="proj-icon" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div class="proj-panel" id="p-${id}" role="region" aria-labelledby="t-${id}" inert>
+          <div>
+            <div class="proj-body">
+              <div class="proj-main">
+                <p class="proj-summary">${esc(p.summary)}</p>
+                ${p.highlights && p.highlights.length ? `<div><p class="proj-label">What I built</p><ul class="highlights">${p.highlights.map((h) => `<li>${esc(h)}</li>`).join('')}</ul></div>` : ''}
+                ${p.stack && p.stack.length ? `<div><p class="proj-label">Stack</p><ul class="tags">${p.stack.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>` : ''}
+                ${links ? `<div class="proj-links">${links}</div>` : ''}
+              </div>
+              <div class="proj-aside">
+                ${coverHTML(p)}
+                <dl class="facts-sm">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+              </div>
+            </div>
+          </div>
         </div>
-      </article>`;
+      </li>`;
   }
 
   // ---- Shared footer -------------------------------------------------------
@@ -254,106 +277,90 @@
   }
 
   function renderWork() {
-    const H = S.hero;
     // The first screen is the video and nothing else.
     $('#hero').innerHTML = videoHTML();
-    const note = $('#featured-note');
-    if (note && H.paidNote) note.textContent = H.paidNote;
+    const note = $('#work-note');
+    if (note && S.hero.paidNote) note.textContent = S.hero.paidNote;
 
-    const featured = S.projects.filter((p) => p.featured);
-    $('#featured').innerHTML = featured.map((p) => cardHTML(p, 'lg')).join('');
+    const list = $('#projects');
+    list.innerHTML = S.projects.map(rowHTML).join('');
 
-    // The grid holds everything not already shown above, so nothing appears twice.
-    const rest = S.projects.filter((p) => !p.featured);
-    const used = new Set(rest.map((p) => p.category));
+    // ---- Filters
+    const used = new Set(S.projects.map((p) => p.category));
     const cats = [{ id: 'all', label: 'All' }, ...S.categories.filter((c) => used.has(c.id))];
     const filters = $('#filters');
-    // One category isn't worth a filter row.
-    filters.hidden = cats.length < 3;
+    filters.hidden = cats.length < 3; // one category isn't worth a filter
     filters.innerHTML = cats
       .map((c) => {
-        const n = c.id === 'all' ? rest.length : rest.filter((p) => p.category === c.id).length;
-        return `<button type="button" class="chip" data-filter="${c.id}" aria-pressed="${c.id === 'all'}">${esc(c.label)} <span>${n}</span></button>`;
+        const n = c.id === 'all' ? S.projects.length : S.projects.filter((p) => p.category === c.id).length;
+        return `<button type="button" class="filter" data-filter="${c.id}" aria-pressed="${c.id === 'all'}">${esc(c.label)} <span>${n}</span></button>`;
       })
       .join('');
 
-    const grid = $('#grid');
-    const drawGrid = (cat) => {
-      const list = cat === 'all' ? rest : rest.filter((p) => p.category === cat);
-      grid.innerHTML = list.map((p) => cardHTML(p, 'sm')).join('');
+    const rows = () => [...list.children];
+    const number = () => {
+      let n = 0;
+      rows().forEach((li) => {
+        if (!li.hidden) li.querySelector('.proj-num').textContent = String(++n).padStart(2, '0');
+      });
     };
-    drawGrid('all');
+    const applyFilter = (cat) => {
+      filters.querySelectorAll('.filter').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
+      rows().forEach((li) => {
+        li.hidden = cat !== 'all' && li.dataset.cat !== cat;
+        if (li.hidden) setOpen(li, false);
+      });
+      number();
+    };
     filters.addEventListener('click', (e) => {
       const b = e.target.closest('[data-filter]');
-      if (!b) return;
-      filters.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
-      drawGrid(b.dataset.filter);
+      if (b) applyFilter(b.dataset.filter);
     });
 
-    setupDialog();
-  }
+    // ---- Expand / collapse (one project open at a time)
+    function setOpen(li, open) {
+      li.classList.toggle('open', open);
+      li.querySelector('.proj-toggle').setAttribute('aria-expanded', String(open));
+      li.querySelector('.proj-panel').inert = !open;
+    }
+    const clearHash = () => history.replaceState(null, '', location.pathname + location.search);
 
-  function setupDialog() {
-    const dlg = $('#project-dialog');
-    let lastFocus = null;
-    let pushed = false;
+    function toggle(li, { scroll = false } = {}) {
+      const opening = !li.classList.contains('open');
+      // Close the others instantly and hold the clicked row still, so the
+      // page doesn't jump when a tall open project above it collapses.
+      const before = li.getBoundingClientRect().top;
+      rows().forEach((o) => {
+        if (o !== li && o.classList.contains('open')) {
+          o.classList.add('instant');
+          setOpen(o, false);
+        }
+      });
+      const shift = li.getBoundingClientRect().top - before;
+      if (shift) window.scrollBy({ top: shift, behavior: 'instant' });
+      requestAnimationFrame(() => rows().forEach((o) => o.classList.remove('instant')));
 
-    const open = (id, push = true) => {
-      const p = S.projects.find((x) => x.id === id);
-      if (!p) return;
-      if (!dlg.open) lastFocus = document.activeElement;
-      const links = (p.links || [])
-        .map((l) => `<a class="button" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} <span aria-hidden="true">↗</span></a>`)
-        .join('');
-      dlg.innerHTML = `
-        <div class="dialog-inner">
-          <button class="dialog-close" type="button" aria-label="Close">×</button>
-          ${coverHTML(p, 'lg')}
-          <div class="dialog-body">
-            <p class="meta"><span class="status" data-status="${esc((p.status || '').toLowerCase())}">${esc(p.status)}</span><span>${esc(catLabel(p.category))}</span><span>${esc(p.year)}</span></p>
-            <h2 id="dialog-title" class="dialog-title">${esc(p.title)}</h2>
-            <p class="dialog-client">${esc(p.client)}${p.role ? ` · <span>${esc(p.role)}</span>` : ''}</p>
-            <p class="dialog-summary">${esc(p.summary)}</p>
-            ${p.highlights && p.highlights.length ? `<ul class="highlights">${p.highlights.map((h) => `<li>${esc(h)}</li>`).join('')}</ul>` : ''}
-            ${p.stack && p.stack.length ? `<ul class="tags">${p.stack.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
-            ${links ? `<div class="dialog-links">${links}</div>` : ''}
-          </div>
-        </div>`;
-      if (!dlg.open) dlg.showModal();
-      document.documentElement.classList.add('modal-open');
-      $('.dialog-close', dlg).focus();
-      pushed = push && location.hash !== `#${id}`;
-      if (pushed) history.pushState(null, '', `#${id}`);
-    };
-
-    const close = () => {
-      if (dlg.open) dlg.close();
-    };
-
-    dlg.addEventListener('close', () => {
-      document.documentElement.classList.remove('modal-open');
-      // Undo our own history entry; a deep-linked open just drops the hash.
-      if (pushed) history.back();
-      else if (location.hash) history.replaceState(null, '', location.pathname + location.search);
-      pushed = false;
-      if (lastFocus) lastFocus.focus();
-    });
-    dlg.addEventListener('click', (e) => {
-      if (e.target === dlg || e.target.closest('.dialog-close')) close();
-    });
-    document.addEventListener('click', (e) => {
-      const b = e.target.closest('[data-open]');
-      if (b) open(b.dataset.open);
+      setOpen(li, opening);
+      if (opening) history.replaceState(null, '', `#${li.id}`);
+      else clearHash();
+      if (scroll) li.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+    list.addEventListener('click', (e) => {
+      const b = e.target.closest('.proj-toggle');
+      if (b) toggle(b.closest('.proj'));
     });
 
-    // Deep links: /#plan-b opens that project, so you can share one directly.
+    // Deep links: /#lead-pipeline opens that project, so one can be shared directly.
     const fromHash = () => {
       const id = decodeURIComponent(location.hash.slice(1));
-      if (id && S.projects.some((p) => p.id === id)) return open(id, false);
-      pushed = false; // the browser already left our entry; don't go back twice
-      close();
+      const li = id && document.getElementById(id);
+      if (!li || !li.classList.contains('proj')) return;
+      applyFilter('all');
+      if (!li.classList.contains('open')) toggle(li, { scroll: true });
     };
-    window.addEventListener('popstate', fromHash);
+    window.addEventListener('hashchange', fromHash);
+
+    number();
     fromHash();
   }
 

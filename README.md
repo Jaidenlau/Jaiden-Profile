@@ -4,10 +4,10 @@ Two pages:
 
 | Route | Tab | What's on it |
 | --- | --- | --- |
-| `/` | Projects & Work | The intro video first, then selected work and the rest of the paid projects. Clicking a project opens its details. |
+| `/` | Projects & Work | The intro video first, then every paid project as a one-line list with filters in a sidebar. Clicking a line expands the full write-up in place. |
 | `/about` | About | Bio, experience, activities, education, tools. |
 
-Each project has its own link, e.g. `/#lead-pipeline`, which opens that project directly. Useful for sharing one project in a LinkedIn post.
+Each project has its own link, e.g. `/#lead-pipeline`, which opens that project's write-up directly. Useful for sharing one project in a LinkedIn post.
 
 ## The rule for this site
 
@@ -17,8 +17,8 @@ Only projects someone paid for go in `projects`. Side projects and unpaid builds
 
 All text, projects, links and images are set in **`public/js/content.js`**. You shouldn't need to touch anything else.
 
-- **Add a project:** copy one of the objects in `projects`, give it a new `id`, fill it in. Set `featured: true` to put it in "Selected work" at the top.
-- **Add a screenshot:** put it in `public/images/projects/` and set `image: '/images/projects/your-file.jpg'` on the project. 16:10 landscape works best. Without an image, the card draws a diagram (`cover`).
+- **Add a project:** copy one of the objects in `projects`, give it a new `id`, fill it in. The list follows the order in the file, so put your best work first.
+- **Add a screenshot:** put it in `public/images/projects/` and set `image: '/images/projects/your-file.jpg'` on the project. It shows beside the write-up when the project is opened (16:10 landscape works best). Without one, a diagram is drawn instead (`cover`).
 - **Add your photo:** put it in `public/images/` and set `about.photo`. Portrait, roughly 4:5.
 - **Add the intro video:** either
   - upload it to YouTube as *Unlisted* and paste the id into `introVideo.youtube`, or

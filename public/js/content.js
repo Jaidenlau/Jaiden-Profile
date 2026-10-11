@@ -22,7 +22,7 @@ window.SITE = {
   // ---- Projects & Work page ------------------------------------------------
   // Only paid client work goes in `projects`. Side projects stay off this site.
   hero: {
-    // Shown next to the "Selected work" heading.
+    // Shown under the "Selected work" heading.
     paidNote: 'Paid client work only',
   },
 
@@ -44,8 +44,7 @@ window.SITE = {
 
   /*
     Project fields
-      id        short, unique, used in the URL (#plan-b)
-      featured  true = shown large in "Selected work"
+      id        short, unique, used in the URL (#lead-pipeline)
       category  one of the category ids above
       client    who it was for. Keep it generic unless you have permission to name them.
       status    Live · Deployed · In delivery · Demo · Delivered · Handed over
@@ -57,7 +56,6 @@ window.SITE = {
   projects: [
     {
       id: 'insurer-agent',
-      featured: true,
       title: 'AI sales agent for a health insurer',
       client: 'Health insurer · subcontract',
       year: '2026',
@@ -79,7 +77,6 @@ window.SITE = {
     },
     {
       id: 'lead-pipeline',
-      featured: true,
       title: 'Multi-agent lead pipeline in Traditional Chinese',
       client: 'Migration consultancy · Hong Kong',
       year: '2026',
@@ -100,7 +97,6 @@ window.SITE = {
     },
     {
       id: 'bank-erp',
-      featured: true,
       title: 'Procurement ERP for a commercial bank',
       client: 'Commercial bank · Bangladesh · tender',
       year: '2026',
@@ -122,7 +118,6 @@ window.SITE = {
     },
     {
       id: 'construction-agents',
-      featured: true,
       title: 'Three AI agents for a construction company',
       client: 'Construction company',
       year: '2026',

@@ -42,26 +42,18 @@
   <main id="main">
     <section class="hero wrap" id="hero"></section>
 
-    <section class="wrap section" aria-labelledby="featured-title">
-      <div class="section-head">
-        <h2 id="featured-title" class="section-title">Selected work</h2>
-        <p class="section-note" id="featured-note"></p>
-      </div>
-      <div class="featured" id="featured"></div>
-    </section>
-
-    <section class="wrap section" aria-labelledby="all-title">
-      <div class="section-head">
-        <h2 id="all-title" class="section-title">More paid work</h2>
+    <section class="wrap work" aria-labelledby="work-title">
+      <div class="work-side">
+        <h2 id="work-title" class="section-title">Selected work</h2>
+        <p class="section-note" id="work-note"></p>
         <div class="filters" id="filters" role="group" aria-label="Filter projects"></div>
       </div>
-      <div class="grid" id="grid"></div>
+      <ol class="proj-list" id="projects"></ol>
     </section>
   </main>
 
   <footer class="site-footer" id="footer"></footer>
 
-  <dialog class="project-dialog" id="project-dialog" aria-labelledby="dialog-title"></dialog>
 
   <noscript><p class="wrap noscript">This page needs JavaScript to show the projects.</p></noscript>
   <script src="/js/content.js?v=%VERSION%"></script>
