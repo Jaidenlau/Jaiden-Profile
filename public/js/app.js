@@ -655,7 +655,7 @@
     const slot = $('#radio');
     const loopSrc = M.loop || M.src;
     if (!slot || !loopSrc) return;
-    const title = M.title || 'Music';
+    const title = M.title || 'Music'; // for screen readers; the visible label only shows if M.title is set
 
     // Only show the button once the track actually exists on the server.
     fetch(loopSrc, { method: 'HEAD' })
@@ -664,7 +664,7 @@
         document.body.classList.add('has-radio');
         slot.innerHTML = `
           <button type="button" class="radio" aria-pressed="false" aria-label="Play music: ${esc(title)}">
-            <span class="radio-label">${esc(title)}</span>
+            ${M.title ? `<span class="radio-label">${esc(M.title)}</span>` : ''}
             <span class="radio-disc" aria-hidden="true"></span>
           </button>`;
         wire(slot.querySelector('.radio'));
@@ -685,7 +685,7 @@
     }
 
     function wire(btn) {
-      const VOLUME = M.volume ?? 0.3;
+      const VOLUME = M.volume ?? 0.1;
       let ctx, gain, introBuf, loopBuf, started = false;
       let playing = false;
 

@@ -22,7 +22,7 @@ All text, projects, links and images are set in **`public/js/content.js`**. You 
   - put an `.mp4` in `public/media/` and set `introVideo.src: '/media/intro.mp4'`. Keep it under ~50 MB (export at 1080p, H.264).
   - If you film vertically on a phone, set `introVideo.aspect: '9 / 16'`.
   - The player is sized from the screen height so the top of "Selected work" is always visible under it on first load.
-- **Music:** the record in the top right plays `public/media/bloom.mp3` (Bloom by Sakane Horizon) when clicked: once from `introStart`, then it loops `loopStart`→`loopEnd` with no gap for the rest of the visit. Those times, the title and the volume are in the `music` block in `content.js`. To use two separate files instead, set `intro` and `loop` in that block in place of `src` and the times. Only use music you have the rights to: this is a public site.
+- **Music:** the record in the top right plays `public/media/bloom.mp3` when clicked: once from `introStart`, then it loops `loopStart`→`loopEnd` with no gap for the rest of the visit. Those times, the volume and an optional label are in the `music` block in `content.js`. To use two separate files instead, set `intro` and `loop` in that block in place of `src` and the times. Only use music you have the rights to: this is a public site.
 - **Add your CV:** put the PDF in `public/` and set `links.resume`.
 
 Colours and fonts are CSS variables at the top of `public/css/style.css`. The site is always light, even on phones set to dark mode. The drifting dust in the background is drawn by `setupDust()` in `public/js/app.js` (it stays still for visitors who turn on reduced motion).

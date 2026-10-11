@@ -42,11 +42,11 @@ window.SITE = {
   // with no gap for the rest of the visit. Times are in seconds within the file.
   music: {
     src: '/media/bloom.mp3',
-    title: 'Bloom · Sakane Horizon',
+    title: '', // shown beside the record while playing; leave empty for no label
     introStart: 0,
     loopStart: 15.4301,
     loopEnd: 39.988,
-    volume: 0.3,
+    volume: 0.1, // 0–1; 0.1 is about half as loud (to the ear) as 0.3
   },
 
   categories: [
