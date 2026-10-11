@@ -612,6 +612,12 @@ window.SITE = {
       ],
       role: 'Solo build',
       stack: ['Python', 'Document extraction', 'SmartSkip API', 'REsimpli'],
+      images: [
+        {
+          src: '/images/projects/foreclosure-crm/1.webp',
+          caption: 'The CRM end of the pipeline: REsimpli rejecting a duplicate lead and syncing a status change, both on test records (numbers masked)',
+        },
+      ],
       links: [],
     },
     {
@@ -712,17 +718,22 @@ window.SITE = {
     },
     {
       id: 'health-chatbot',
-      title: 'Knowledge base chatbot',
+      title: 'Verified pregnancy & postpartum knowledge base',
       client: 'Consumer health brand',
       year: '2026',
-      status: 'Delivered',
+      status: 'Built',
       category: 'ai',
       cover: 'brief',
       summary:
-        'A chatbot that answers from the brand’s own documents rather than the open internet: document ingestion, indexing and grounded answers over a curated library.',
-      highlights: ['Document ingestion and indexing', 'Answers grounded in the brand’s own material'],
+        'A public knowledge base where every claim about pregnancy and postpartum care has to survive a verification pipeline before anyone sees it, with a chatbot that answers only from those verified claims and cites them. Candidate claims pass four gates: the source must be retrievable, the claim must be grounded word for word in it, an adversarial entailment check must score it at least 0.7, and a second source must corroborate it. Anything rejected goes into a ledger with its reason and score, so nothing is silently dropped.',
+      highlights: [
+        'Four-gate verification pipeline with an audit page showing the verdict on every claim',
+        'Chatbot answers only from verified claims, with citations',
+        '91 verified claims from 71 sources across four markets (US, China, EU, Australia), with a view showing where the markets disagree',
+        '20 competitors’ public claims fact-checked against the same evidence',
+      ],
       role: 'Engineer',
-      stack: ['RAG', 'Knowledge base indexing', 'Grounded generation'],
+      stack: ['Node.js', 'Postgres full-text search', 'Claude API', 'Railway'],
       links: [],
     },
   ],
